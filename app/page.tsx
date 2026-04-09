@@ -278,7 +278,7 @@ const loanTypes = [
   { icon: User, label: "Prêt Personnel", href: "/offres/personnel", rate: "dès 5,50%", color: "#3B82F6", desc: "Sans justificatif d'utilisation" },
   { icon: Home, label: "Prêt Immobilier", href: "/offres/immobilier", rate: "dès 3,40%", color: "#8B5CF6", desc: "Résidence principale & investissement" },
   { icon: Briefcase, label: "Prêt Professionnel", href: "/offres/professionnel", rate: "dès 4,80%", color: "#F59E0B", desc: "TPE, PME & indépendants" },
-  { icon: RefreshCw, label: "Rachat de Crédit", href: "/offres/rachat", rate: "dès 4,20%", color: "var(--color-accent)", desc: "Regroupez tous vos crédits" },
+  { icon: RefreshCw, label: "Rachat de Crédit", href: "/offres/rachat-credit", rate: "dès 4,20%", color: "var(--color-accent)", desc: "Regroupez tous vos crédits" },
   { icon: Wrench, label: "Prêt Travaux", href: "/offres/travaux", rate: "dès 4,90%", color: "#EC4899", desc: "Rénovation & éco-travaux" },
   { icon: Car, label: "Prêt Auto", href: "/offres/auto", rate: "dès 4,50%", color: "#06B6D4", desc: "Neuf, occasion & LOA" },
 ];

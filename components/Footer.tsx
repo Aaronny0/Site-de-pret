@@ -7,7 +7,7 @@ const offresLinks = [
   { label: "Prêt Personnel", href: "/offres/personnel" },
   { label: "Prêt Immobilier", href: "/offres/immobilier" },
   { label: "Prêt Professionnel", href: "/offres/professionnel" },
-  { label: "Rachat de Crédit", href: "/offres/rachat" },
+  { label: "Rachat de Crédit", href: "/offres/rachat-credit" },
   { label: "Prêt Travaux", href: "/offres/travaux" },
   { label: "Prêt Auto", href: "/offres/auto" },
 ];

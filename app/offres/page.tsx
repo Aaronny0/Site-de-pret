@@ -60,7 +60,7 @@ const offers = [
     id: "rachat",
     icon: RefreshCw,
     label: "Rachat de Crédit",
-    href: "/offres/rachat",
+    href: "/offres/rachat-credit",
     rate: "dès 4,20%",
     taeg: "dès 4,70%",
     min: "10 000 €",

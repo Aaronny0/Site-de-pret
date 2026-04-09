@@ -23,7 +23,7 @@ const offresMenu = [
   { label: "Prêt Personnel", href: "/offres/personnel", desc: "Financement sans justificatif" },
   { label: "Prêt Immobilier", href: "/offres/immobilier", desc: "Acquisition & investissement" },
   { label: "Prêt Professionnel", href: "/offres/professionnel", desc: "TPE, PME, indépendants" },
-  { label: "Rachat de Crédit", href: "/offres/rachat", desc: "Regroupez vos crédits" },
+  { label: "Rachat de Crédit", href: "/offres/rachat-credit", desc: "Regroupez vos crédits" },
   { label: "Prêt Travaux", href: "/offres/travaux", desc: "Rénovation & éco-travaux" },
   { label: "Prêt Auto", href: "/offres/auto", desc: "Neuf, occasion & LOA" },
 ];
