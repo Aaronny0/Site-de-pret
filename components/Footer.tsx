@@ -3,37 +3,44 @@
 import Link from "next/link";
 import { TrendingUp, Shield, Phone, Mail, MapPin, ExternalLink } from "lucide-react";
 
-const offresLinks = [
-  { label: "Prêt Personnel", href: "/offres/personnel" },
-  { label: "Prêt Immobilier", href: "/offres/immobilier" },
-  { label: "Prêt Professionnel", href: "/offres/professionnel" },
-  { label: "Rachat de Crédit", href: "/offres/rachat-credit" },
-  { label: "Prêt Travaux", href: "/offres/travaux" },
-  { label: "Prêt Auto", href: "/offres/auto" },
-];
-
-const infoLinks = [
-  { label: "À propos", href: "/a-propos" },
-  { label: "Comment ça marche", href: "/comment-ca-marche" },
-  { label: "Blog & Conseils", href: "/blog" },
-  { label: "FAQ", href: "/faq" },
-  { label: "Contact", href: "/contact" },
-  { label: "Simulateur", href: "/simulateur" },
-];
-
-const legalLinks = [
-  { label: "Mentions légales", href: "/mentions-legales" },
-  { label: "CGU", href: "/cgu" },
-  { label: "CGV / CGS", href: "/cgv" },
-  { label: "Confidentialité", href: "/confidentialite" },
-  { label: "Cookies", href: "/cookies" },
-  { label: "Réclamations", href: "/reclamations" },
-  { label: "LCB-FT", href: "/lcb-ft" },
-  { label: "Accessibilité", href: "/accessibilite" },
-];
+import { useDictionary } from "./DictionaryProvider";
+import { getLocalizedPath, type AppLocale } from "@/lib/routes";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+  const { dict, lang } = useDictionary();
+  const locale = lang as AppLocale;
+  const t = dict?.footer || {};
+  const tOffers = dict?.offers || {};
+
+  const offresLinks = [
+    { label: tOffers.personal || "Préstamo Personal", href: getLocalizedPath("offers_personal", locale) },
+    { label: tOffers.realestate || "Préstamo Hipotecario", href: getLocalizedPath("offers_realestate", locale) },
+    { label: tOffers.professional || "Préstamo Profesional", href: getLocalizedPath("offers_professional", locale) },
+    { label: tOffers.consolidation || "Reagrupación de Créditos", href: getLocalizedPath("offers_consolidation", locale) },
+    { label: tOffers.renovation || "Préstamo Obras", href: getLocalizedPath("offers_renovation", locale) },
+    { label: tOffers.auto || "Préstamo Auto", href: getLocalizedPath("offers_auto", locale) },
+  ];
+
+  const infoLinks = [
+    { label: t.about || "Sobre nosotros", href: getLocalizedPath("about", locale) },
+    { label: dict?.navbar?.how_it_works || "Cómo funciona", href: getLocalizedPath("how_it_works", locale) },
+    { label: t.blog || "Blog", href: getLocalizedPath("blog", locale) },
+    { label: t.faq || "FAQ", href: getLocalizedPath("faq", locale) },
+    { label: dict?.navbar?.contact || "Contacto", href: getLocalizedPath("contact", locale) },
+    { label: dict?.navbar?.simulator || "Simulador", href: getLocalizedPath("simulator", locale) },
+  ];
+
+  const legalLinks = [
+    { label: t.legal_notices || "Avisos legales", href: getLocalizedPath("legal", locale) },
+    { label: t.terms || "Condiciones de uso", href: getLocalizedPath("terms", locale) },
+    { label: t.terms_sale || "Condiciones de venta", href: getLocalizedPath("terms_sale", locale) },
+    { label: t.privacy || "Privacidad", href: getLocalizedPath("privacy", locale) },
+    { label: t.cookies || "Cookies", href: getLocalizedPath("cookies", locale) },
+    { label: t.complaints || "Reclamaciones", href: getLocalizedPath("complaints", locale) },
+    { label: "LCB-FT", href: getLocalizedPath("lcb_ft", locale) },
+    { label: t.accessibility || "Accesibilidad", href: getLocalizedPath("accessibility", locale) },
+  ];
 
   return (
     <footer className="footer" role="contentinfo">
@@ -49,7 +56,7 @@ export default function Footer() {
           {/* Column 1 — Brand + Certifications */}
           <div style={{ gridColumn: "span 1" }}>
             <Link
-              href="/"
+              href={getLocalizedPath("home", locale)}
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -92,15 +99,14 @@ export default function Footer() {
                 marginBottom: "1.5rem",
               }}
             >
-              Votre partenaire de confiance pour tous vos projets de financement.
-              Intermédiaire agréé, transparent et responsable.
+              {dict?.footer?.description || "Votre partenaire de confiance pour tous vos projets de financement. Intermédiaire agréé, transparent et responsable."}
             </p>
 
             {/* Certifications */}
             <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
               {[
                 { icon: Shield, text: "ORIAS n° 00-000-000", color: "var(--color-accent)" },
-                { icon: Shield, text: "Contrôlé par l'ACPR", color: "var(--color-gold)" },
+                { icon: Shield, text: lang === 'fr' ? "Contrôlé par l'ACPR" : "Controlado por la ACPR", color: "var(--color-gold)" },
                 { icon: Shield, text: "SSL 256-bit • RGPD", color: "#60A5FA" },
               ].map((cert, i) => (
                 <div key={i} style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
@@ -129,7 +135,7 @@ export default function Footer() {
                 onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.7)")}
               >
                 <Phone size={14} />
-                01 00 00 00 00 (non surtaxé)
+                {t.phone || "+34 900 000 000"} ({t.phone_label || "Llamada gratuita"})
               </a>
               <a
                 href="mailto:contact@financepro.fr"
@@ -146,7 +152,7 @@ export default function Footer() {
                 onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.7)")}
               >
                 <Mail size={14} />
-                contact@financepro.fr
+                {t.email || "contacto@financepro.es"}
               </a>
               <div
                 style={{
@@ -158,7 +164,7 @@ export default function Footer() {
                 }}
               >
                 <MapPin size={14} style={{ flexShrink: 0, marginTop: "2px" }} />
-                <span>1 rue de la Finance, 75001 Paris</span>
+                <span>{t.address || "Calle Gran Vía 42, 28013 Madrid"}</span>
               </div>
             </div>
           </div>
@@ -176,7 +182,7 @@ export default function Footer() {
                 marginBottom: "1.25rem",
               }}
             >
-              Nos Offres
+              {dict?.navbar?.offres || "Nos Offres"}
             </h3>
             <nav aria-label="Liens offres footer">
               <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "0.1rem" }}>
@@ -204,7 +210,7 @@ export default function Footer() {
                 marginBottom: "1.25rem",
               }}
             >
-              Informations
+              {lang === 'fr' ? 'Informations' : 'Información'}
             </h3>
             <nav aria-label="Liens informations footer">
               <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "0.1rem" }}>
@@ -232,7 +238,7 @@ export default function Footer() {
                 marginBottom: "1.25rem",
               }}
             >
-              Légal & Conformité
+              {dict?.footer?.legal || "Légal & Conformité"}
             </h3>
             <nav aria-label="Liens légaux footer">
               <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "0.1rem" }}>
@@ -254,7 +260,7 @@ export default function Footer() {
                 className="footer-link"
                 style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}
               >
-                Vérifier sur ORIAS
+                {lang === 'fr' ? 'Vérifier sur ORIAS' : 'Verificar en ORIAS'}
                 <ExternalLink size={12} />
               </a>
               <a
@@ -264,7 +270,7 @@ export default function Footer() {
                 className="footer-link"
                 style={{ display: "flex", alignItems: "center", gap: "0.4rem", marginTop: "0.2rem" }}
               >
-                Contrôle ACPR
+                {lang === 'fr' ? 'Contrôle ACPR' : 'Control ACPR'}
                 <ExternalLink size={12} />
               </a>
             </div>
@@ -298,9 +304,9 @@ export default function Footer() {
             lineHeight: "1.6",
           }}
         >
-          <strong style={{ color: "rgba(245,158,11,0.9)" }}>⚠️ Avertissement légal :</strong>{" "}
-          Un crédit vous engage et doit être remboursé. Vérifiez vos capacités de remboursement avant de vous engager.
-          FinancePro SAS — IOBSP enregistré à l&apos;ORIAS sous le n° 00-000-000. Consultable sur{" "}
+          <strong style={{ color: "rgba(245,158,11,0.9)" }}>⚠️ {lang === 'fr' ? 'Avertissement légal' : 'Aviso legal'} :</strong>{" "}
+          {t.credit_warning || "Un crédito le compromete y debe ser reembolsado. Verifique su capacidad de pago antes de comprometerse."}
+          {" "}FinancePro SL — IOBSP {lang === 'fr' ? "enregistré à l'ORIAS sous le n°" : "registrado en ORIAS n°"} 00-000-000. {lang === 'fr' ? 'Consultable sur' : 'Verificable en'}{" "}
           <a
             href="https://www.orias.fr"
             target="_blank"
@@ -309,7 +315,7 @@ export default function Footer() {
           >
             www.orias.fr
           </a>
-          . Soumis au contrôle de l&apos;ACPR — 4 place de Budapest, 75436 Paris Cedex 09.
+          . {lang === 'fr' ? "Soumis au contrôle de l'ACPR" : "Sujeto al control de la ACPR"} — 4 place de Budapest, 75436 Paris Cedex 09.
         </div>
       </div>
 
@@ -331,15 +337,15 @@ export default function Footer() {
           }}
         >
           <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.4)" }}>
-            © {currentYear} FinancePro SAS — Tous droits réservés. SIRET : 000 000 000 00000
+            © {currentYear} FinancePro SL — {t.rights_reserved || "Todos los derechos reservados."} CIF: B00000000
           </p>
           <nav aria-label="Liens bas de page">
             <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap" }}>
               {[
-                { label: "Plan du site", href: "/sitemap" },
-                { label: "Accessibilité", href: "/accessibilite" },
-                { label: "Info précontractuelles", href: "/informations-precontractuelles" },
-                { label: "Avertissements", href: "/avertissements" },
+                { label: lang === 'fr' ? "Plan du site" : "Mapa del sitio", href: `/${lang}/sitemap` },
+                { label: t.accessibility || "Accesibilidad", href: getLocalizedPath("accessibility", locale) },
+                { label: lang === 'fr' ? "Info précontractuelles" : "Info precontractual", href: getLocalizedPath("precontractual", locale) },
+                { label: lang === 'fr' ? "Avertissements" : "Avisos", href: getLocalizedPath("warnings", locale) },
               ].map((link) => (
                 <Link
                   key={link.href}
@@ -375,7 +381,7 @@ export default function Footer() {
           }}
         >
           <span style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.4)" }}>
-            Accessibilité :
+            {lang === 'fr' ? 'Accessibilité :' : 'Accesibilidad :'}
           </span>
           <button
             onClick={() => {
@@ -414,14 +420,14 @@ export default function Footer() {
             A-
           </button>
           <Link
-            href="/accessibilite"
+            href={getLocalizedPath("accessibility", locale)}
             style={{
               fontSize: "0.75rem",
               color: "rgba(255,255,255,0.4)",
               textDecoration: "underline",
             }}
           >
-            Déclaration d&apos;accessibilité
+            {lang === 'fr' ? "Déclaration d'accessibilité" : "Declaración de accesibilidad"}
           </Link>
         </div>
       </div>

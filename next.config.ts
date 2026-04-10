@@ -1,7 +1,10 @@
 import type { NextConfig } from "next";
+import { buildRewrites } from "./lib/routes";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  async rewrites() {
+    return buildRewrites();
+  },
 };
 
 export default nextConfig;

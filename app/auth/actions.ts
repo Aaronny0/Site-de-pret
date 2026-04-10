@@ -10,7 +10,6 @@ export async function login(formData: FormData) {
   const email = formData.get('email') as string
   const password = formData.get('password') as string
 
-  // Simple validation
   if (!email || !password) {
     return { error: 'Veuillez remplir tous les champs.' }
   }
@@ -24,8 +23,8 @@ export async function login(formData: FormData) {
     return { error: "Email ou mot de passe invalide." }
   }
 
-  revalidatePath('/espace-client', 'layout')
-  redirect('/espace-client')
+  revalidatePath('/', 'layout')
+  redirect('/fr/espace-client')
 }
 
 export async function signup(formData: FormData) {
@@ -44,14 +43,15 @@ export async function signup(formData: FormData) {
     return { error: 'Le mot de passe doit contenir au moins 6 caractères.' }
   }
 
-  const { data, error } = await supabase.auth.signUp({
+  const { error } = await supabase.auth.signUp({
     email,
     password,
     options: {
       data: {
         first_name: firstName,
         last_name: lastName,
-      }
+      },
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/callback?next=/fr/espace-client`,
     }
   })
 
@@ -59,16 +59,13 @@ export async function signup(formData: FormData) {
     return { error: error.message }
   }
 
-  revalidatePath('/espace-client', 'layout')
-  
-  // Si require email confirmation est activé sur Supabase, on peut rediriger vers un message.
-  // Mais par défaut on redirige vers l'espace client.
-  redirect('/espace-client?message=Check-Email')
+  revalidatePath('/', 'layout')
+  redirect('/fr/espace-client?message=Check-Email')
 }
 
 export async function logout() {
   const supabase = await createClient()
   await supabase.auth.signOut()
   revalidatePath('/', 'layout')
-  redirect('/connexion')
+  redirect('/fr/connexion')
 }

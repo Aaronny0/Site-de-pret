@@ -73,6 +73,13 @@
   padding: 0;
 }
 
+/* Ensure images and media are responsive */
+img, picture, video, canvas, svg, iframe {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
 html {
   scroll-behavior: smooth;
   font-size: 16px;
@@ -1446,6 +1453,11 @@ a:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; b
    ============================================================ */
 
 @media (max-width: 768px) {
+  /* Minimum touch target size for interactive elements */
+  .btn, .nav-link, button, .accordion-trigger, .footer-link, [role="tab"], [role="button"] {
+    min-height: 44px;
+  }
+
   /* Global typography */
   h1 { font-size: 1.75rem !important; }
   h2 { font-size: 1.4rem !important; }
@@ -1663,4 +1675,49 @@ a:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; b
   }
 }
 
+/* ============================================================
+   UTILITY — Responsive visibility
+   ============================================================ */
 
+@media (max-width: 767px) {
+  .hide-mobile {
+    display: none !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .hide-desktop {
+    display: none !important;
+  }
+}
+
+/* Login page: full-width form on mobile */
+@media (max-width: 767px) {
+  /* On mobile, the login split layout becomes single-column */
+  div[style*="max-width: 64rem"] {
+    flex-direction: column !important;
+  }
+  div[style*="max-width: 64rem"] > div:last-child {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+}
+
+/* ============================================================
+   KEYFRAMES — Float & Spin
+   ============================================================ */
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 200, 150, 0.25); }
+  50% { box-shadow: 0 0 20px 5px rgba(0, 200, 150, 0.15); }
+}
