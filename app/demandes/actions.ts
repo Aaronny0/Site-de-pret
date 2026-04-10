@@ -1,0 +1,104 @@
+'use server'
+
+import { createClient } from '@supabase/supabase-js'
+
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
+
+export async function submitLoanApplication(formData: any, uploadedDocs: any) {
+  try {
+    const {
+      loanType,
+      amount,
+      duration,
+      dossierNumber,
+      userId,
+      ...personalData
+    } = formData
+
+    // 1. Préparer les documents pour l'insertion
+    const documents = Object.entries(uploadedDocs).map(([key, value]: [string, any]) => ({
+      id: key,
+      label: value.label,
+      name: value.name,
+      path: value.path,
+      type: value.name.split('.').pop()?.toUpperCase() || 'UNKNOWN',
+      size: value.size ? `${(value.size / 1024 / 1024).toFixed(1)} Mo` : 'N/A',
+      uploaded_at: new Date().toISOString().split('T')[0]
+    }))
+
+    // 2. Insérer dans loan_applications
+    const { data, error } = await supabaseAdmin
+      .from('loan_applications')
+      .insert({
+        user_id: userId,
+        dossier_number: dossierNumber,
+        loan_type: loanType,
+        amount: amount,
+        duration: duration,
+        personal_data: personalData,
+        documents: documents,
+        status: 'pending'
+      })
+      .select()
+      .single()
+
+    if (error) throw error
+
+    return { success: true, data }
+  } catch (error) {
+    console.error('Erreur submitLoanApplication:', error)
+    return { success: false, error: 'Impossible d\'enregistrer votre demande.' }
+  }
+}
+
+export async function getUserApplications(userId: string) {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('loan_applications')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+    return { success: true, applications: data || [] }
+  } catch (error: any) {
+    console.error('Erreur getUserApplications:', error)
+    return { success: false, error: error.message }
+  }
+}
+
+export async function getUserProfile(userId: string) {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single()
+
+    if (error) throw error
+    return { success: true, profile: data }
+  } catch (error: any) {
+    console.error('Erreur getUserProfile:', error)
+    return { success: false, error: error.message }
+  }
+}
+
+export async function updateUserProfile(userId: string, profileData: any) {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('profiles')
+      .update(profileData)
+      .eq('id', userId)
+      .select()
+      .single()
+
+    if (error) throw error
+    return { success: true, profile: data }
+  } catch (error: any) {
+    console.error('Erreur updateUserProfile:', error)
+    return { success: false, error: error.message }
+  }
+}

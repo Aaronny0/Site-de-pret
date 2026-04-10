@@ -26,7 +26,7 @@ import {
   Building2,
   Clock,
 } from 'lucide-react'
-import { getAllDemandes, updateDemandeStatus } from '@/app/admin/actions'
+import { getAllDemandes, updateDemandeStatus, getDocumentUrl } from '@/app/admin/actions'
 
 // ─── Demo Data (All 5 steps) ────────────────────────────────────────────────
 const demoDemandes = [
@@ -437,6 +437,15 @@ function DetailPanel({ demande, onClose, onStatusChange }: {
                     </div>
                     <div style={{ display: 'flex', gap: '0.5rem' }}>
                       <button
+                        onClick={async () => {
+                          if (!doc.path) return;
+                          const res = await getDocumentUrl(doc.path);
+                          if (res.success && res.url) {
+                            window.open(res.url, '_blank');
+                          } else {
+                            alert("Erreur lors de la récupération du lien : " + res.error);
+                          }
+                        }}
                         style={{
                           background: 'none', border: '1px solid var(--color-border)',
                           borderRadius: 'var(--radius-sm)', padding: '0.375rem 0.75rem',
@@ -448,6 +457,20 @@ function DetailPanel({ demande, onClose, onStatusChange }: {
                         <Eye size={13} /> Voir
                       </button>
                       <button
+                        onClick={async () => {
+                          if (!doc.path) return;
+                          const res = await getDocumentUrl(doc.path);
+                          if (res.success && res.url) {
+                            const link = document.createElement('a');
+                            link.href = res.url;
+                            link.download = doc.name;
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                          } else {
+                            alert("Erreur lors de la récupération du lien : " + res.error);
+                          }
+                        }}
                         style={{
                           background: 'var(--color-primary)', color: 'white',
                           border: 'none', borderRadius: 'var(--radius-sm)',

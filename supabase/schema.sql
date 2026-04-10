@@ -108,7 +108,7 @@ create policy "Anyone can insert a simulation" on simulations
 
 create table if not exists loan_applications (
   id uuid default uuid_generate_v4() primary key,
-  user_id uuid references auth.users on delete cascade not null,
+  user_id uuid references public.profiles(id) on delete cascade not null,
   dossier_number text unique not null, -- Ex: FP-2025-47823
   simulation_id uuid references simulations on delete set null,
   loan_type text not null,

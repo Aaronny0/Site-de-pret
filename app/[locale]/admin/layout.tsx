@@ -38,8 +38,8 @@ function clearSession() {
 }
 
 function AdminLogin({ onLogin }: { onLogin: () => void }) {
-  const [id, setId] = useState('')
-  const [pwd, setPwd] = useState('')
+  const [id, setId] = useState('admin')
+  const [pwd, setPwd] = useState('admin')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 

@@ -97,7 +97,7 @@ export default function LoginPage() {
       </div>
 
       <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        initial={{ opacity: 1, scale: 1, y: 0 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
         style={{
@@ -534,6 +534,24 @@ export default function LoginPage() {
                   {t.register_link || 'Crear una cuenta'}
                 </Link>
               </p>
+            </div>
+
+            {/* Admin Dashboard Link */}
+            <div style={{ marginTop: '1rem', textAlign: 'center' }}>
+              <Link
+                href={`/${locale}/admin`}
+                style={{ 
+                  fontSize: '0.875rem', 
+                  fontWeight: 600, 
+                  color: 'rgba(255, 255, 255, 0.8)', 
+                  textDecoration: 'underline',
+                  background: 'var(--color-primary)',
+                  padding: '0.4rem 1rem',
+                  borderRadius: 'var(--radius-full)'
+                }}
+              >
+                {locale === 'fr' ? 'Accéder au tableau de bord Administrateur' : 'Acceder al panel de Administrador'}
+              </Link>
             </div>
           </div>
         </div>

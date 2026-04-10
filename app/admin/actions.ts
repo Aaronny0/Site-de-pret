@@ -57,6 +57,7 @@ export async function getAdminStats() {
 
 export async function getAllDemandes() {
   try {
+    // Tenter la jointure d'abord
     const { data, error } = await supabaseAdmin
       .from('loan_applications')
       .select(`
@@ -74,12 +75,22 @@ export async function getAllDemandes() {
       `)
       .order('created_at', { ascending: false })
 
-    if (error) throw error
+    if (error) {
+      // Si la jointure échoue (ex: FK manquante), on récupère les données sans profiles
+      console.warn("Jointure profiles échouée, récupération sans profiles:", error.message);
+      const { data: simpleData, error: simpleError } = await supabaseAdmin
+        .from('loan_applications')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (simpleError) throw simpleError;
+      return { success: true, demandes: simpleData };
+    }
 
     return { success: true, demandes: data }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Erreur getAllDemandes:', error)
-    return { success: false, error: 'Impossible de récupérer les demandes.' }
+    return { success: false, error: 'Impossible de récupérer les demandes : ' + error.message }
   }
 }
 
@@ -150,6 +161,22 @@ export async function updateDemandeStatus(id: string, status: string, notes?: st
   } catch (error) {
     console.error('Erreur updateDemandeStatus:', error)
     return { success: false, error: 'Impossible de mettre à jour la demande.' }
+  }
+}
+
+export async function getDocumentUrl(path: string) {
+  try {
+    const { data, error } = await supabaseAdmin
+      .storage
+      .from('loan-documents')
+      .createSignedUrl(path, 3600) // 1 heure
+
+    if (error) throw error
+
+    return { success: true, url: data.signedUrl }
+  } catch (error) {
+    console.error('Erreur getDocumentUrl:', error)
+    return { success: false, error: 'Impossible de récupérer le lien du document.' }
   }
 }
 

@@ -19,7 +19,10 @@ import {
   Eye,
   Shield,
   Bell,
+  PlusCircle,
 } from "lucide-react";
+import { getUserApplications, getUserProfile, updateUserProfile } from "@/app/demandes/actions";
+import { getDocumentUrl } from "@/app/admin/actions";
 
 // Demo data
 const demoLoan = {
@@ -58,22 +61,58 @@ export default function EspaceClientPage() {
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("overview");
-  const [notifications] = useState(2);
+  const [applications, setApplications] = useState<any[]>([]);
+  const [profile, setProfile] = useState<any>(null);
+  const [notifications, setNotifications] = useState(1);
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    async function loadUser() {
+    async function loadData() {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         router.push("/connexion");
-      } else {
-        setUser(user);
-        setLoading(false);
+        return;
       }
+      setUser(user);
+
+      // Charger les demandes et le profil
+      const [appsRes, profileRes] = await Promise.all([
+        getUserApplications(user.id),
+        getUserProfile(user.id)
+      ]);
+
+      if (appsRes.success) setApplications(appsRes.applications);
+      if (profileRes.success) setProfile(profileRes.profile);
+
+      setLoading(false);
     }
-    loadUser();
+    loadData();
   }, [router]);
+
+  const handleUpdateProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+    setIsSavingProfile(true);
+    
+    const formData = new FormData(e.target as HTMLFormElement);
+    const data = {
+      first_name: formData.get("first_name"),
+      last_name: formData.get("last_name"),
+      phone: formData.get("phone"),
+      address: formData.get("address"),
+      city: formData.get("city"),
+    };
+
+    const res = await updateUserProfile(user.id, data);
+    if (res.success) {
+      setProfile(res.profile);
+      alert("Profil mis à jour avec succès !");
+    } else {
+      alert("Erreur : " + res.error);
+    }
+    setIsSavingProfile(false);
+  };
 
   const progress = Math.round(((demoLoan.totalMonths - demoLoan.remainingMonths) / demoLoan.totalMonths) * 100);
 
@@ -85,13 +124,17 @@ export default function EspaceClientPage() {
     );
   }
 
-  // Dashboard
+  // Dashboard - Filtrer les onglets (masquer Mensualités s'il n'y a pas de prêt actif/approuvé)
+  const hasActiveLoan = applications.some(app => app.status === 'approved');
+  
   const tabs = [
     { id: "overview", label: "Vue d'ensemble", icon: TrendingUp },
-    { id: "payments", label: "Mensualités", icon: Clock },
-    { id: "documents", label: "Documents", icon: FileText },
+    ...(hasActiveLoan ? [{ id: "payments", label: "Mensualités", icon: Clock }] : []),
+    { id: "documents", label: "Mes documents", icon: FileText },
     { id: "profile", label: "Mon profil", icon: User },
   ];
+
+  const latestApp = applications[0];
 
   return (
     <>
@@ -166,66 +209,77 @@ export default function EspaceClientPage() {
           {activeTab === "overview" && (
             <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "2rem" }}>
               <div>
-                {/* Loan card */}
-                <div className="card" style={{ padding: "0", overflow: "hidden", marginBottom: "1.5rem" }}>
-                  <div style={{ background: "linear-gradient(135deg, var(--color-primary), var(--color-primary-dark))", padding: "1.5rem" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "1rem" }}>
-                      <div>
-                        <p style={{ color: "rgba(255,255,255,0.65)", fontSize: "0.8rem", marginBottom: "0.25rem" }}>{demoLoan.type}</p>
-                        <p style={{ color: "white", fontFamily: "var(--font-mono)", fontSize: "0.875rem" }}>N° {demoLoan.number}</p>
-                      </div>
-                      <span className="badge badge-success">{demoLoan.status}</span>
-                    </div>
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1rem" }}>
-                      {[
-                        { l: "Capital remboursé", v: `${(demoLoan.amount - demoLoan.remainingCapital).toFixed(0).toLocaleString()} €` },
-                        { l: "Capital restant", v: `${demoLoan.remainingCapital.toLocaleString("fr-FR")} €` },
-                        { l: "Mensualité", v: `${demoLoan.monthlyPayment.toFixed(2)} €` },
-                      ].map(({ l, v }) => (
-                        <div key={l}>
-                          <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.75rem" }}>{l}</p>
-                          <p style={{ color: "white", fontFamily: "var(--font-mono)", fontWeight: "700", fontSize: "1.1rem" }}>{v}</p>
+                {/* Loan card or Application Status */}
+                {latestApp ? (
+                  <div className="card" style={{ padding: "0", overflow: "hidden", marginBottom: "1.5rem" }}>
+                    <div style={{ background: "linear-gradient(135deg, var(--color-primary), var(--color-primary-dark))", padding: "1.5rem" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "1rem" }}>
+                        <div>
+                          <p style={{ color: "rgba(255,255,255,0.65)", fontSize: "0.8rem", marginBottom: "0.25rem" }}>{latestApp.loan_type}</p>
+                          <p style={{ color: "white", fontFamily: "var(--font-mono)", fontSize: "0.875rem" }}>N° {latestApp.dossier_number}</p>
                         </div>
-                      ))}
+                        <span className={`badge ${
+                          latestApp.status === 'pending' ? 'badge-primary' : 
+                          latestApp.status === 'approved' ? 'badge-success' : 
+                          latestApp.status === 'rejected' ? 'badge-danger' : 'badge-info'
+                        }`}>
+                          {latestApp.status === 'pending' ? 'En attente' : 
+                           latestApp.status === 'processing' ? 'En cours' : 
+                           latestApp.status === 'approved' ? 'Approuvé' : 
+                           latestApp.status === 'rejected' ? 'Refusé' : latestApp.status}
+                        </span>
+                      </div>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1rem" }}>
+                        {[
+                          { l: "Montant demandé", v: `${latestApp.amount.toLocaleString()} €` },
+                          { l: "Durée", v: `${latestApp.duration} mois` },
+                          { l: "Date de demande", v: new Date(latestApp.created_at).toLocaleDateString() },
+                        ].map(({ l, v }) => (
+                          <div key={l}>
+                            <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.75rem" }}>{l}</p>
+                            <p style={{ color: "white", fontFamily: "var(--font-mono)", fontWeight: "700", fontSize: "1.1rem" }}>{v}</p>
+                          </div>
+                        ))}
+                      </div>
                     </div>
+                    {latestApp.status === 'approved' && (
+                      <div style={{ padding: "1.25rem 1.5rem" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
+                          <p style={{ fontSize: "0.875rem", fontWeight: "600" }}>Validation du dossier</p>
+                          <span style={{ fontFamily: "var(--font-mono)", fontWeight: "700", color: "var(--color-accent)" }}>100%</span>
+                        </div>
+                        <div className="progress-container">
+                          <div className="progress-bar" style={{ width: `100%` }} />
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  <div style={{ padding: "1.25rem 1.5rem" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
-                      <p style={{ fontSize: "0.875rem", fontWeight: "600" }}>Progression du remboursement</p>
-                      <span style={{ fontFamily: "var(--font-mono)", fontWeight: "700", color: "var(--color-accent)" }}>{progress}%</span>
+                ) : (
+                  <div className="card" style={{ padding: "2.5rem", textAlign: "center", marginBottom: "1.5rem" }}>
+                    <div style={{ width: "60px", height: "60px", borderRadius: "50%", background: "rgba(42,95,158,0.1)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 1.5rem" }}>
+                      <PlusCircle size={30} style={{ color: "var(--color-primary)" }} />
                     </div>
-                    <div className="progress-container">
-                      <div
-                        className="progress-bar"
-                        style={{ width: `${progress}%` }}
-                        role="progressbar"
-                        aria-valuenow={progress}
-                        aria-valuemin={0}
-                        aria-valuemax={100}
-                      />
-                    </div>
-                    <div style={{ display: "flex", justifyContent: "space-between", marginTop: "0.5rem", fontSize: "0.775rem", color: "var(--color-text-muted)" }}>
-                      <span>{demoLoan.startDate}</span>
-                      <span>{demoLoan.remainingMonths} mois restants</span>
-                      <span>{demoLoan.endDate}</span>
-                    </div>
+                    <h3 style={{ marginBottom: "0.5rem" }}>Vous n'avez pas encore de demande</h3>
+                    <p style={{ color: "var(--color-text-muted)", fontSize: "0.9rem", marginBottom: "1.5rem" }}>
+                      Réalisez votre simulation en quelques minutes et obtenez une réponse de principe immédiate.
+                    </p>
+                    <Link href="/fr/demande" className="btn btn-primary">Faire une demande</Link>
                   </div>
-                </div>
+                )}
 
-                {/* Alerts */}
+                {/* Notifications */}
                 <div className="card" style={{ padding: "1.25rem 1.5rem", marginBottom: "1.5rem" }}>
                   <h2 style={{ fontFamily: "var(--font-body)", fontSize: "1rem", fontWeight: "700", marginBottom: "1rem" }}>
                     Notifications ({notifications})
                   </h2>
-                  {[
-                    { icon: CheckCircle, color: "var(--color-accent)", text: "Prochaine mensualité : 285,50 € le 1er Mai 2025" },
-                    { icon: Bell, color: "var(--color-gold)", text: "Relevé annuel 2024 disponible en téléchargement" },
-                  ].map(({ icon: Icon, color, text }, i) => (
-                    <div key={i} style={{ display: "flex", gap: "0.75rem", padding: "0.75rem 0", borderBottom: i === 0 ? "1px solid var(--color-border-light)" : "none", alignItems: "center" }}>
-                      <Icon size={18} style={{ color, flexShrink: 0 }} />
-                      <p style={{ fontSize: "0.9rem", color: "var(--color-text)" }}>{text}</p>
+                  {latestApp?.status === 'pending' ? (
+                    <div style={{ display: "flex", gap: "0.75rem", padding: "0.75rem 0", alignItems: "center" }}>
+                      <Clock size={18} style={{ color: "var(--color-primary-light)", flexShrink: 0 }} />
+                      <p style={{ fontSize: "0.9rem", color: "var(--color-text)" }}>Votre demande n° {latestApp.dossier_number} est en cours d'analyse par nos conseillers.</p>
                     </div>
-                  ))}
+                  ) : (
+                    <p style={{ fontSize: "0.875rem", color: "var(--color-text-muted)" }}>Aucune nouvelle notification.</p>
+                  )}
                 </div>
 
                 {/* Key info */}
@@ -342,29 +396,50 @@ export default function EspaceClientPage() {
           {/* Documents Tab */}
           {activeTab === "documents" && (
             <div>
-              <h2 style={{ marginBottom: "1.5rem" }}>Mes documents</h2>
+              <h2 style={{ marginBottom: "1.5rem" }}>Mes documents téléversés</h2>
               <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                {demoDocuments.map((doc, i) => (
-                  <div key={i} className="card" style={{ padding: "1.25rem 1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                      <div style={{ width: "44px", height: "44px", borderRadius: "var(--radius-md)", background: "rgba(220,38,38,0.1)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                        <FileText size={20} style={{ color: "#DC2626" }} />
+                {applications.length > 0 ? (
+                  applications.flatMap(app => (app.documents || []).map((doc: any, i: number) => (
+                    <div key={`${app.id}-${i}`} className="card" style={{ padding: "1.25rem 1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                        <div style={{ width: "44px", height: "44px", borderRadius: "var(--radius-md)", background: "rgba(42,95,158,0.1)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                          <FileText size={20} style={{ color: "var(--color-primary)" }} />
+                        </div>
+                        <div>
+                          <p style={{ fontWeight: "600", fontSize: "0.9rem" }}>{doc.label}</p>
+                          <p style={{ fontSize: "0.775rem", color: "var(--color-text-muted)" }}>{doc.name} — {doc.size}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p style={{ fontWeight: "600", fontSize: "0.9rem" }}>{doc.name}</p>
-                        <p style={{ fontSize: "0.775rem", color: "var(--color-text-muted)" }}>{doc.date} — {doc.size}</p>
+                      <div style={{ display: "flex", gap: "0.5rem" }}>
+                        <button
+                          onClick={async () => {
+                            const res = await getDocumentUrl(doc.path);
+                            if (res.success && res.url) window.open(res.url, '_blank');
+                          }}
+                          style={{ background: "none", border: "1px solid var(--color-border)", borderRadius: "var(--radius-sm)", padding: "0.375rem 0.75rem", cursor: "pointer", fontSize: "0.8rem", display: "flex", alignItems: "center", gap: "0.35rem", fontFamily: "var(--font-body)" }}
+                        >
+                          <Eye size={13} />Voir
+                        </button>
+                        <button
+                          onClick={async () => {
+                            const res = await getDocumentUrl(doc.path);
+                            if (res.success && res.url) {
+                              const link = document.createElement('a');
+                              link.href = res.url;
+                              link.download = doc.name;
+                              link.click();
+                            }
+                          }}
+                          style={{ background: "var(--color-primary)", color: "white", border: "none", borderRadius: "var(--radius-sm)", padding: "0.375rem 0.75rem", cursor: "pointer", fontSize: "0.8rem", display: "flex", alignItems: "center", gap: "0.35rem", fontFamily: "var(--font-body)" }}
+                        >
+                          <Download size={13} />Télécharger
+                        </button>
                       </div>
                     </div>
-                    <div style={{ display: "flex", gap: "0.5rem" }}>
-                      <button style={{ background: "none", border: "1px solid var(--color-border)", borderRadius: "var(--radius-sm)", padding: "0.375rem 0.75rem", cursor: "pointer", fontSize: "0.8rem", display: "flex", alignItems: "center", gap: "0.35rem", fontFamily: "var(--font-body)" }}>
-                        <Eye size={13} />Voir
-                      </button>
-                      <button style={{ background: "var(--color-primary)", color: "white", border: "none", borderRadius: "var(--radius-sm)", padding: "0.375rem 0.75rem", cursor: "pointer", fontSize: "0.8rem", display: "flex", alignItems: "center", gap: "0.35rem", fontFamily: "var(--font-body)" }}>
-                        <Download size={13} />Télécharger
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  )))
+                ) : (
+                  <p style={{ color: "var(--color-text-muted)" }}>Aucun document disponible.</p>
+                )}
               </div>
             </div>
           )}
@@ -373,23 +448,38 @@ export default function EspaceClientPage() {
           {activeTab === "profile" && (
             <div style={{ maxWidth: "600px" }}>
               <h2 style={{ marginBottom: "1.5rem" }}>Mon profil</h2>
-              <div className="card" style={{ padding: "2rem" }}>
+              <form className="card" style={{ padding: "2rem" }} onSubmit={handleUpdateProfile}>
                 <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
                   {[
-                    { l: "Prénom", v: user?.user_metadata?.first_name || "", id: "p-first" },
-                    { l: "Nom", v: user?.user_metadata?.last_name || "", id: "p-last" },
-                    { l: "Email", v: user?.email || "", id: "p-email" },
-                    { l: "Téléphone", v: "", id: "p-phone" },
-                    { l: "Adresse", v: "", id: "p-addr" },
-                  ].map(({ l, v, id }) => (
-                    <div className="form-group" key={id}>
-                      <label className="form-label" htmlFor={id}>{l}</label>
-                      <input id={id} type="text" className="form-input" defaultValue={v} />
+                    { l: "Prénom", v: profile?.first_name || user?.user_metadata?.first_name || "", name: "first_name" },
+                    { l: "Nom", v: profile?.last_name || user?.user_metadata?.last_name || "", name: "last_name" },
+                    { l: "Email", v: user?.email || "", name: "email", disabled: true },
+                    { l: "Téléphone", v: profile?.phone || "", name: "phone" },
+                    { l: "Adresse", v: profile?.address || "", name: "address" },
+                    { l: "Ville", v: profile?.city || "", name: "city" },
+                  ].map(({ l, v, name, disabled }) => (
+                    <div className="form-group" key={name}>
+                      <label className="form-label" htmlFor={name}>{l}</label>
+                      <input 
+                        id={name} 
+                        name={name}
+                        type="text" 
+                        className="form-input" 
+                        defaultValue={v} 
+                        disabled={disabled}
+                      />
                     </div>
                   ))}
-                  <button className="btn btn-primary" style={{ alignSelf: "flex-start" }}>Enregistrer les modifications</button>
+                  <button 
+                    type="submit" 
+                    disabled={isSavingProfile}
+                    className="btn btn-primary" 
+                    style={{ alignSelf: "flex-start" }}
+                  >
+                    {isSavingProfile ? "Enregistrement..." : "Enregistrer les modifications"}
+                  </button>
                 </div>
-              </div>
+              </form>
 
               <div className="card" style={{ padding: "1.5rem", marginTop: "1.25rem" }}>
                 <h3 style={{ fontFamily: "var(--font-body)", fontSize: "1rem", fontWeight: "700", marginBottom: "1rem" }}>

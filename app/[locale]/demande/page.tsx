@@ -18,6 +18,9 @@ import {
 } from "lucide-react";
 import { useDictionary } from "@/components/DictionaryProvider";
 import { getLocalizedPath, type AppLocale } from "@/lib/routes";
+import { createClient } from "@/lib/supabase/client";
+import { useRouter } from "next/navigation";
+import { submitLoanApplication } from "@/app/demandes/actions";
 
 function getSteps(lang: string) {
   return lang === 'fr' ? [
@@ -199,10 +202,12 @@ export default function DemandePage() {
   const docTypes = getDocTypes(lang);
   const t = dict?.request || {};
 
+  const router = useRouter();
   const [step, setStep] = useState(1);
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [dossierNumber] = useState(`FP-${new Date().getFullYear()}-${Math.floor(Math.random() * 89999 + 10000)}`);
-  const [uploadedDocs, setUploadedDocs] = useState<Record<string, string>>({});
+  const [uploadedDocs, setUploadedDocs] = useState<Record<string, { name: string; path: string; size: number; label: string }>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const [form, setForm] = useState<FormData>({
@@ -279,14 +284,73 @@ export default function DemandePage() {
 
   const prevStep = () => setStep((s) => Math.max(s - 1, 1));
 
-  const handleSubmit = () => {
-    if (validateStep()) {
-      setSubmitted(true);
+  const handleSubmit = async () => {
+    if (!validateStep()) return;
+
+    setIsSubmitting(true);
+    const supabase = createClient();
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (!session) {
+      // Redirection si non connecté
+      const returnUrl = encodeURIComponent(`/${locale}/demande`);
+      router.push(`/${locale}/connexion?next=${returnUrl}`);
+      return;
+    }
+
+    try {
+      const result = await submitLoanApplication(
+        { ...form, dossierNumber, userId: session.user.id },
+        uploadedDocs
+      );
+
+      if (result.success) {
+        setSubmitted(true);
+      } else {
+        alert(result.error || "Une erreur est survenue lors de l'envoi.");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Erreur de connexion.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleFileUpload = (docId: string) => {
-    setUploadedDocs((d) => ({ ...d, [docId]: "document.pdf" }));
+  const handleFileUpload = async (docId: string, label: string, file: File) => {
+    const supabase = createClient();
+    
+    // Vérifier l'auth avant l'upload
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      alert("Veuillez vous connecter avant de téléverser des documents.");
+      router.push(`/${locale}/connexion`);
+      return;
+    }
+
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${session.user.id}/${docId}-${Date.now()}.${fileExt}`;
+    const filePath = `${fileName}`;
+
+    try {
+      const { error: uploadError } = await supabase.storage
+        .from('loan-documents')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      setUploadedDocs((d) => ({ 
+        ...d, 
+        [docId]: { 
+          name: file.name, 
+          path: filePath, 
+          size: file.size,
+          label: label 
+        } 
+      }));
+    } catch (error: any) {
+      alert("Erreur d'upload : " + error.message);
+    }
   };
 
   if (submitted) {
@@ -693,7 +757,16 @@ export default function DemandePage() {
                           )}
                           <button
                             type="button"
-                            onClick={() => handleFileUpload(id)}
+                            onClick={() => {
+                              const input = document.createElement('input');
+                              input.type = 'file';
+                              input.accept = 'application/pdf,image/jpeg,image/png';
+                              input.onchange = (e) => {
+                                const file = (e.target as HTMLInputElement).files?.[0];
+                                if (file) handleFileUpload(id, label, file);
+                              };
+                              input.click();
+                            }}
                             className="btn btn-ghost btn-sm"
                             style={{ fontSize: "0.8rem" }}
                           >
@@ -836,11 +909,18 @@ export default function DemandePage() {
                 <button
                   type="button"
                   onClick={handleSubmit}
+                  disabled={isSubmitting}
                   className="btn btn-primary btn-lg"
                   style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
                 >
-                  <Check size={18} />
-                  Soumettre ma demande
+                  {isSubmitting ? (
+                    <>Envoi en cours...</>
+                  ) : (
+                    <>
+                      <Check size={18} />
+                      Soumettre ma demande
+                    </>
+                  )}
                 </button>
               )}
             </div>
