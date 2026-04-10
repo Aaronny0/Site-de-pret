@@ -1,3 +1,4 @@
+pnpm run dev
 "use client";
 
 import { useState } from "react";
@@ -150,8 +151,8 @@ function StepIndicator({ currentStep, lang }: { currentStep: number; lang: strin
                   background: done
                     ? "var(--color-accent)"
                     : active
-                    ? "linear-gradient(135deg, var(--color-accent), var(--color-accent-dark))"
-                    : "white",
+                      ? "linear-gradient(135deg, var(--color-accent), var(--color-accent-dark))"
+                      : "white",
                   border: `2px solid ${done || active ? "var(--color-accent)" : "var(--color-border)"}`,
                   boxShadow: active ? "var(--shadow-accent)" : "none",
                   transition: "all 0.3s",
