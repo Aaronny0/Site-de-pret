@@ -12,6 +12,7 @@
     "@formatjs/intl-localematcher": "^0.8.2",
     "@supabase/ssr": "^0.10.0",
     "@supabase/supabase-js": "^2.102.1",
+    "@vercel/analytics": "^2.0.1",
     "framer-motion": "^12.38.0",
     "lucide-react": "^1.7.0",
     "negotiator": "^1.0.0",

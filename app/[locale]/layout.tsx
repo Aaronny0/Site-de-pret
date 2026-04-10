@@ -4,6 +4,7 @@ import "../globals.css";
 import LayoutShell from "@/components/LayoutShell";
 import { DictionaryProvider } from "@/components/DictionaryProvider";
 import { getDictionary, type Locale } from "@/dictionaries/dictionaries";
+import { Analytics } from "@vercel/analytics/next";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -116,6 +117,7 @@ export default async function RootLayout({
             {children}
           </LayoutShell>
         </DictionaryProvider>
+        <Analytics />
       </body>
     </html>
   );
