@@ -67,6 +67,7 @@ export default function EspaceClientPage() {
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const router = useRouter();
 
+  useEffect(() => {
     async function loadData() {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
@@ -82,8 +83,8 @@ export default function EspaceClientPage() {
         getUserProfile(user.id)
       ]);
 
-      if (appsRes.success) setApplications(appsRes.applications);
-      if (profileRes.success) setProfile(profileRes.profile);
+      if (appsRes.success) setApplications(appsRes.applications || []);
+      if (profileRes.success) setProfile(profileRes.profile || null);
 
       setLoading(false);
     }

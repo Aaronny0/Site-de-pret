@@ -1,4 +1,3 @@
-pnpm run dev
 "use client";
 
 import { useState } from "react";
@@ -739,7 +738,7 @@ export default function DemandePage() {
                               {required && <span style={{ color: "var(--color-danger)", marginLeft: "0.25rem" }}>*</span>}
                             </p>
                             <p style={{ fontSize: "0.8rem", color: uploaded ? "var(--color-accent-dark)" : "var(--color-text-muted)" }}>
-                              {uploaded || desc}
+                              {uploaded ? uploaded.name : desc}
                             </p>
                           </div>
                         </div>
