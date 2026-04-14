@@ -536,23 +536,6 @@ export default function LoginPage() {
               </p>
             </div>
 
-            {/* Admin Dashboard Link */}
-            <div style={{ marginTop: '1rem', textAlign: 'center' }}>
-              <Link
-                href={`/${locale}/admin`}
-                style={{ 
-                  fontSize: '0.875rem', 
-                  fontWeight: 600, 
-                  color: 'rgba(255, 255, 255, 0.8)', 
-                  textDecoration: 'underline',
-                  background: 'var(--color-primary)',
-                  padding: '0.4rem 1rem',
-                  borderRadius: 'var(--radius-full)'
-                }}
-              >
-                {locale === 'fr' ? 'Accéder au tableau de bord Administrateur' : 'Acceder al panel de Administrador'}
-              </Link>
-            </div>
           </div>
         </div>
       </motion.div>
