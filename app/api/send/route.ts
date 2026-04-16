@@ -38,7 +38,7 @@ export async function POST(request: Request) {
   } catch (error: any) {
     // LOGGING ROBUSTE POUR DEBUGGER SUR VERCEL
     console.error('=========================================');
-    console.error('❌ ERREUR CRITIQUE D\\'ENVOI SMTP :');
+    console.error("❌ ERREUR CRITIQUE D'ENVOI SMTP :");
     console.error('Nom erreur :', error.name);
     console.error('Message erreur :', error.message);
     if (error.response) {
