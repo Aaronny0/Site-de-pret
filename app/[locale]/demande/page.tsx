@@ -352,6 +352,17 @@ export default function DemandePage() {
     }
   };
 
+  const TAEG = 3.85; // Taux fixe réaliste très attractif
+  const monthlyRate = (TAEG / 100) / 12;
+  const calculatePayment = () => {
+    if (!form.amount || form.amount <= 0 || !form.duration || form.duration <= 0) return 0;
+    if (TAEG === 0) return form.amount / form.duration;
+    return (form.amount * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -form.duration));
+  };
+  const monthlyPayment = calculatePayment();
+  const totalRepayment = monthlyPayment * form.duration;
+  const totalInterest = totalRepayment - form.amount;
+
   if (submitted) {
     return (
       <section style={{ minHeight: "80vh", display: "flex", alignItems: "center", background: "var(--color-bg)", padding: "4rem 0" }}>
@@ -490,6 +501,32 @@ export default function DemandePage() {
                       min={new Date().toISOString().split("T")[0]}
                     />
                   </div>
+                  
+                  {/* Summary Box */}
+                  <div style={{ padding: "1.5rem", background: "rgba(0, 200, 150, 0.05)", border: "1px solid rgba(0, 200, 150, 0.2)", borderRadius: "var(--radius-md)", display: "flex", flexDirection: "column", gap: "0.75rem", marginTop: "0.5rem" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", color: "var(--color-text)", fontSize: "0.95rem" }}>
+                      <span>Montant emprunté</span>
+                      <span style={{ fontWeight: 600 }}>{(form.amount || 0).toLocaleString("fr-FR")} €</span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", color: "var(--color-text)", fontSize: "0.95rem" }}>
+                      <span>TAEG (Taux Annuel Effectif Global) fixe</span>
+                      <span style={{ fontWeight: 600, color: "var(--color-primary)" }}>{TAEG} %</span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", color: "var(--color-text)", fontSize: "0.95rem", alignItems: "center" }}>
+                      <span>Mensualité estimée</span>
+                      <span style={{ fontWeight: 700, color: "var(--color-accent)", fontSize: "1.3rem" }}>{monthlyPayment.toFixed(2).replace('.', ',')} € / mois</span>
+                    </div>
+                    <div style={{ width: "100%", height: "1px", background: "rgba(0,0,0,0.05)", margin: "0.25rem 0" }} />
+                    <div style={{ display: "flex", justifyContent: "space-between", color: "var(--color-text-muted)", fontSize: "0.85rem" }}>
+                      <span>Coût total de l'emprunt (intérêts compris)</span>
+                      <span style={{ fontWeight: 600 }}>{totalInterest > 0 ? totalInterest.toFixed(2).replace('.', ',') : "0,00"} €</span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", color: "var(--color-text-muted)", fontSize: "0.85rem" }}>
+                      <span>Montant total dû</span>
+                      <span style={{ fontWeight: 600 }}>{totalRepayment > 0 ? totalRepayment.toFixed(2).replace('.', ',') : "0,00"} €</span>
+                    </div>
+                  </div>
+
                 </div>
               </fieldset>
             )}
