@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@supabase/supabase-js'
+import { sendEmail } from '@/lib/mailer'
 
 // Initialiser le client admin avec la Service Role Key pour contourner le RLS
 const supabaseAdmin = createClient(
@@ -143,17 +144,8 @@ export async function updateDemandeStatus(id: string, status: string, notes?: st
           `;
         }
         
-        // On fetch l'API en absolu si on connaît l'URL, sinon en local
-        const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-        fetch(`${baseUrl}/api/send-email`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            to: email,
-            subject,
-            html
-          })
-        }).catch(e => console.error("API send-email error", e));
+        // Envoi direct sans fetch HTTP
+        await sendEmail(email, subject, html).catch(e => console.error("sendEmail error", e));
       }
     }
 
@@ -204,14 +196,8 @@ export async function requestMissingDocuments(id: string, email: string, firstNa
       .update({ notes: notes })
       .eq('id', id);
 
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-    const res = await fetch(`${baseUrl}/api/send-email`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ to: email, subject, html })
-    });
-
-    if (!res.ok) throw new Error("L'API d'envoi d'email a échoué.");
+    const res = await sendEmail(email, subject, html);
+    if (!res.success) throw new Error("L'envoi de l'email a échoué.");
 
     return { success: true };
   } catch (error) {
