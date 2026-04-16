@@ -356,7 +356,6 @@ export default function DemandePage() {
   const monthlyRate = (TAEG / 100) / 12;
   const calculatePayment = () => {
     if (!form.amount || form.amount <= 0 || !form.duration || form.duration <= 0) return 0;
-    if (TAEG === 0) return form.amount / form.duration;
     return (form.amount * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -form.duration));
   };
   const monthlyPayment = calculatePayment();
