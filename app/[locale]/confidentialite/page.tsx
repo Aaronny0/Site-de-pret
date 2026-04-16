@@ -30,7 +30,7 @@ export default function ConfidentialitePage() {
             <h2 style={{ fontFamily: "var(--font-body)", fontSize: "0.95rem", fontWeight: "700", marginBottom: "1rem", textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--color-text-muted)" }}>
               Table des matières
             </h2>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem" }}>
+            <div className="grid grid-cols-1 md:grid-cols-2" style={{gap: "0.5rem"}}>
               {[
                 ["1. Responsable du traitement", "#rt"],
                 ["2. Données collectées", "#donnees"],
@@ -171,7 +171,7 @@ export default function ConfidentialitePage() {
 
             <h2 id="droits">8. Vos droits</h2>
             <p>Conformément aux articles 15 à 22 du RGPD, vous disposez des droits suivants :</p>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem", margin: "1rem 0" }}>
+            <div className="grid grid-cols-1 md:grid-cols-2" style={{gap: "0.75rem", margin: "1rem 0"}}>
               {[
                 { icon: Eye, title: "Droit d'accès", desc: "Obtenir une copie de vos données" },
                 { icon: Database, title: "Droit de rectification", desc: "Corriger vos données inexactes" },

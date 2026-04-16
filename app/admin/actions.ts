@@ -145,7 +145,17 @@ export async function updateDemandeStatus(id: string, status: string, notes?: st
         }
         
         // Envoi direct sans fetch HTTP
-        await sendEmail(email, subject, html).catch(e => console.error("sendEmail error", e));
+        console.log("Tentative d'envoi d'email à", email, "avec le statut", status);
+        const emailResult = await sendEmail(email, subject, html);
+        console.log("Résultat de sendEmail:", emailResult);
+        
+        if (!emailResult.success) {
+          console.error("Échec de l'envoi de l'email via sendEmail:", emailResult.error);
+          // Optionnel : on pourrait jeter une erreur ici pour annuler la mise à jour si l'email est obligatoire
+          // throw new Error("Mise à jour réussie mais l'envoi de l'email a échoué: " + emailResult.error);
+        } else {
+          console.log("Email envoyé avec succès! MessageID:", emailResult.messageId);
+        }
       }
     }
 

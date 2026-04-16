@@ -19,7 +19,7 @@ export default function PretImmobilierPage() {
     <>
       <section style={{ background: "linear-gradient(135deg, #5B21B6 0%, var(--color-primary) 100%)", padding: "4rem 0 3rem" }}>
         <div className="container">
-          <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "3rem", alignItems: "center" }}>
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_auto]" style={{gap: "3rem", alignItems: "center"}}>
             <div>
               <nav aria-label="Fil d'Ariane" style={{ marginBottom: "1.5rem" }}>
                 <ol style={{ display: "flex", gap: "0.5rem", listStyle: "none", fontSize: "0.8rem", color: "rgba(255,255,255,0.5)" }}>
@@ -66,7 +66,7 @@ export default function PretImmobilierPage() {
           {/* Project types */}
           <div style={{ marginBottom: "3.5rem" }}>
             <h2 style={{ textAlign: "center", marginBottom: "2rem" }}>{lang === 'fr' ? 'Votre projet immobilier' : 'Su proyecto inmobiliario'}</h2>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1rem" }}>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4" style={{gap: "1rem"}}>
               {(lang === 'fr' ? [
                 { icon: "🏠", label: "Résidence principale", desc: "Acquisition de votre habitation" },
                 { icon: "🏢", label: "Investissement locatif", desc: "LMNP, Pinel, Denormandie" },
@@ -88,7 +88,7 @@ export default function PretImmobilierPage() {
           </div>
 
           {/* Key features */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "3rem", marginBottom: "3.5rem" }}>
+          <div className="grid grid-cols-1 md:grid-cols-2" style={{gap: "3rem", marginBottom: "3.5rem"}}>
             <div>
               <h2 style={{ marginBottom: "1.25rem" }}>{lang === 'fr' ? 'Les avantages FinancePro Immobilier' : 'Ventajas Hipotecarias FinancePro'}</h2>
               <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
@@ -161,7 +161,7 @@ export default function PretImmobilierPage() {
             <p style={{ textAlign: "center", color: "var(--color-text-muted)", fontSize: "0.9rem", marginBottom: "2rem" }}>
               {lang === 'fr' ? "Conformément à l'article L313-1 du Code de la consommation" : "Conforme a la normativa hipotecaria vigente"}
             </p>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1.25rem" }}>
+            <div className="grid grid-cols-1 md:grid-cols-3" style={{gap: "1.25rem"}}>
               {examples.map((ex, i) => (
                 <div key={i} className="card" style={{ padding: "1.5rem" }}>
                   <h3 style={{ fontFamily: "var(--font-body)", fontSize: "0.95rem", fontWeight: "700", marginBottom: "1rem", color: "#5B21B6" }}>

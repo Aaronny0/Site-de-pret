@@ -100,7 +100,7 @@ export default function PretProfessionnelPage() {
     <>
       <section style={{ background: "linear-gradient(135deg, var(--color-primary) 0%, rgba(139, 92, 246, 0.4) 100%)", padding: "4rem 0 3rem" }}>
         <div className="container">
-          <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "3rem", alignItems: "center" }}>
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_auto]" style={{gap: "3rem", alignItems: "center"}}>
             <div>
               <nav aria-label="Fil d'Ariane" style={{ marginBottom: "1.5rem" }}>
                 <ol style={{ display: "flex", gap: "0.5rem", listStyle: "none", fontSize: "0.8rem", color: "rgba(255,255,255,0.5)" }}>
@@ -144,7 +144,7 @@ export default function PretProfessionnelPage() {
 
           <div style={{ marginBottom: "4rem" }}>
             <h2 style={{ textAlign: "center", marginBottom: "2rem" }}>{lang === 'fr' ? 'Des solutions pour chaque étape' : 'Soluciones para cada etapa'}</h2>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1.25rem" }}>
+            <div className="grid grid-cols-1 md:grid-cols-3" style={{gap: "1.25rem"}}>
               {plans.map((plan) => (
                 <div
                   key={plan.name}
@@ -164,7 +164,7 @@ export default function PretProfessionnelPage() {
                   <h3 style={{ fontFamily: "var(--font-body)", fontSize: "1.1rem", fontWeight: "700", marginBottom: "0.5rem" }}>{plan.name}</h3>
                   <div style={{ fontFamily: "var(--font-mono)", fontSize: "1.75rem", fontWeight: "700", color: "#A855F7", marginBottom: "0.25rem" }}>{plan.rate}</div>
                   <p style={{ fontSize: "0.8rem", color: "var(--color-text-muted)", marginBottom: "1.25rem" }}>TAEG {plan.taeg}</p>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem", marginBottom: "1.25rem" }}>
+                  <div className="grid grid-cols-1 md:grid-cols-2" style={{gap: "0.5rem", marginBottom: "1.25rem"}}>
                     {[
                       { l: lang === 'fr' ? "Montant" : "Importe", v: plan.maxAmount },
                       { l: lang === 'fr' ? "Durée" : "Plazo", v: plan.maxDuration },
@@ -191,7 +191,7 @@ export default function PretProfessionnelPage() {
             </div>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "3rem", marginBottom: "4rem" }}>
+          <div className="grid grid-cols-1 md:grid-cols-2" style={{gap: "3rem", marginBottom: "4rem"}}>
             <div>
               <h2 style={{ fontSize: "1.5rem", marginBottom: "1.25rem" }}>{lang === 'fr' ? 'Les avantages FinancePro' : 'Las ventajas de FinancePro'}</h2>
               <div style={{ display: "flex", flexDirection: "column", gap: "0.625rem" }}>
@@ -243,7 +243,7 @@ export default function PretProfessionnelPage() {
 
           <div style={{ marginBottom: "4rem" }}>
             <h2 style={{ textAlign: "center", marginBottom: "0.5rem" }}>{lang === 'fr' ? "Exemples d'investissement" : "Ejemplos de inversión"}</h2>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1.25rem", marginTop: "2rem" }}>
+            <div className="grid grid-cols-1 md:grid-cols-3" style={{gap: "1.25rem", marginTop: "2rem"}}>
               {examples.map((ex, i) => (
                 <div key={i} style={{ background: i === 1 ? "linear-gradient(135deg, #A855F7, #7E22CE)" : "var(--color-surface)", border: i === 1 ? "none" : "1px solid var(--color-border)", borderRadius: "var(--radius-lg)", padding: "1.5rem", color: i === 1 ? "white" : "inherit" }}>
                   <h3 style={{ fontSize: "1rem", marginBottom: "1rem", color: i === 1 ? "white" : "var(--color-text)" }}>

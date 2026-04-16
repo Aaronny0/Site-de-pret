@@ -304,7 +304,7 @@ function DetailPanel({ demande, onClose, onStatusChange, onReclamation }: {
               <FileText size={18} style={{ color: 'var(--color-accent)' }} />
               Détails du projet
             </h3>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div className="grid grid-cols-1 md:grid-cols-2" style={{gap: '1rem'}}>
               {[
                 { l: 'Type de financement', v: demande.project.loanType },
                 { l: 'Montant demandé', v: `${demande.project.amount.toLocaleString('fr-FR')} €` },
@@ -351,7 +351,7 @@ function DetailPanel({ demande, onClose, onStatusChange, onReclamation }: {
               <User size={18} style={{ color: 'var(--color-primary-light)' }} />
               Informations personnelles
             </h3>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '2rem' }}>
+            <div className="grid grid-cols-1 md:grid-cols-2" style={{gap: '0.75rem', marginBottom: '2rem'}}>
               {[
                 { icon: User, l: 'Identité', v: `${demande.personal.civility} ${demande.personal.firstName} ${demande.personal.lastName}` },
                 { icon: Calendar, l: 'Date de naissance', v: new Date(demande.personal.birthDate).toLocaleDateString('fr-FR') },
@@ -377,7 +377,7 @@ function DetailPanel({ demande, onClose, onStatusChange, onReclamation }: {
               <Briefcase size={18} style={{ color: 'var(--color-gold)' }} />
               Situation financière
             </h3>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+            <div className="grid grid-cols-1 md:grid-cols-2" style={{gap: '0.75rem'}}>
               {[
                 { l: 'Statut pro', v: demande.financial.professionalStatus },
                 { l: 'Employeur', v: demande.financial.employer || '-' },

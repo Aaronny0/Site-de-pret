@@ -35,7 +35,7 @@ export default function ReclamationsPage() {
 
             <h2>1. Étape 1 — Service Réclamations FinancePro</h2>
             <p>Adressez votre réclamation à notre Service Réclamations :</p>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", margin: "1rem 0" }}>
+            <div className="grid grid-cols-1 md:grid-cols-2" style={{gap: "1rem", margin: "1rem 0"}}>
               <div style={{ background: "var(--color-bg-alt)", borderRadius: "var(--radius-md)", padding: "1.25rem" }}>
                 <p style={{ fontWeight: "700", marginBottom: "0.5rem" }}>Par email (recommandé)</p>
                 <a href="mailto:reclamations@financepro.fr" style={{ color: "var(--color-primary-light)", display: "flex", alignItems: "center", gap: "0.4rem" }}>

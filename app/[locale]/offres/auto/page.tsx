@@ -13,7 +13,7 @@ export default function PretAutoPage() {
     <>
       <section style={{ background: "linear-gradient(135deg, var(--color-primary) 0%, rgba(16, 185, 129, 0.4) 100%)", padding: "4rem 0 3rem" }}>
         <div className="container">
-          <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "3rem", alignItems: "center" }}>
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_auto]" style={{gap: "3rem", alignItems: "center"}}>
             <div>
               <nav aria-label="Fil d'Ariane" style={{ marginBottom: "1.5rem" }}>
                 <ol style={{ display: "flex", gap: "0.5rem", listStyle: "none", fontSize: "0.8rem", color: "rgba(255,255,255,0.5)" }}>

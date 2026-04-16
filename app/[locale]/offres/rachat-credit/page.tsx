@@ -79,7 +79,7 @@ export default function RachatCreditPage() {
     <>
       <section style={{ background: "linear-gradient(135deg, var(--color-primary) 0%, rgba(202, 138, 4, 0.5) 100%)", padding: "4rem 0 3rem" }}>
         <div className="container">
-          <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "3rem", alignItems: "center" }}>
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_auto]" style={{gap: "3rem", alignItems: "center"}}>
             <div>
               <nav aria-label="Fil d'Ariane" style={{ marginBottom: "1.5rem" }}>
                 <ol style={{ display: "flex", gap: "0.5rem", listStyle: "none", fontSize: "0.8rem", color: "rgba(255,255,255,0.5)" }}>
@@ -111,7 +111,7 @@ export default function RachatCreditPage() {
         <div className="container">
           <div style={{ marginBottom: "4rem" }}>
              <h2 style={{ textAlign: "center", marginBottom: "2rem" }}>{lang === 'fr' ? 'Nos solutions de regroupement' : 'Nuestras soluciones de reagrupación'}</h2>
-             <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "2rem", maxWidth: "800px", margin: "0 auto" }}>
+             <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "2rem", maxWidth: "800px", width: "100%", margin: "0 auto" }}>
                {plans.map((plan) => (
                  <div key={plan.name} className="card" style={{ padding: "2.5rem", border: plan.highlighted ? "2px solid #EAB308" : "1px solid var(--color-border)", position: "relative" }}>
                    {plan.highlighted && (

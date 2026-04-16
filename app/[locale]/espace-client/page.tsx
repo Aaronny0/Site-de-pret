@@ -251,7 +251,7 @@ export default function EspaceClientPage() {
 
           {/* Overview Tab */}
           {activeTab === "overview" && (
-            <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "2rem" }}>
+            <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr]" style={{gap: "2rem"}}>
               <div>
                 {/* Loan card or Application Status */}
                 {latestApp ? (
@@ -273,7 +273,7 @@ export default function EspaceClientPage() {
                            latestApp.status === 'rejected' ? 'Refusé' : latestApp.status}
                         </span>
                       </div>
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1rem" }}>
+                      <div className="grid grid-cols-1 md:grid-cols-3" style={{gap: "1rem"}}>
                         {[
                           { l: "Montant demandé", v: `${latestApp.amount.toLocaleString()} €` },
                           { l: "Durée", v: `${latestApp.duration} mois` },
@@ -327,7 +327,7 @@ export default function EspaceClientPage() {
                 </div>
 
                 {/* Key info */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                <div className="grid grid-cols-1 md:grid-cols-2" style={{gap: "1rem"}}>
                   {[
                     { l: "Taux débiteur fixe", v: `${demoLoan.rate.toFixed(2)} %` },
                     { l: "TAEG fixe", v: `${demoLoan.taeg.toFixed(2)} %` },

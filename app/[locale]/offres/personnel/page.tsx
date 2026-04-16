@@ -106,7 +106,7 @@ export default function PretPersonnelPage() {
       {/* Hero */}
       <section style={{ background: "linear-gradient(135deg, var(--color-primary) 0%, #1E4D7A 100%)", padding: "4rem 0 3rem" }}>
         <div className="container">
-          <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "3rem", alignItems: "center" }}>
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_auto]" style={{gap: "3rem", alignItems: "center"}}>
             <div>
               <nav aria-label="Fil d'Ariane" style={{ marginBottom: "1.5rem" }}>
                 <ol style={{ display: "flex", gap: "0.5rem", listStyle: "none", fontSize: "0.8rem", color: "rgba(255,255,255,0.5)" }}>
@@ -151,7 +151,7 @@ export default function PretPersonnelPage() {
           {/* Plans */}
           <div style={{ marginBottom: "4rem" }}>
             <h2 style={{ textAlign: "center", marginBottom: "2rem" }}>{lang === 'fr' ? 'Choisissez votre formule' : 'Elija su plan'}</h2>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1.25rem" }}>
+            <div className="grid grid-cols-1 md:grid-cols-3" style={{gap: "1.25rem"}}>
               {plans.map((plan) => (
                 <div
                   key={plan.name}
@@ -171,7 +171,7 @@ export default function PretPersonnelPage() {
                   <h3 style={{ fontFamily: "var(--font-body)", fontSize: "1.1rem", fontWeight: "700", marginBottom: "0.5rem" }}>{plan.name}</h3>
                   <div style={{ fontFamily: "var(--font-mono)", fontSize: "1.75rem", fontWeight: "700", color: "var(--color-accent)", marginBottom: "0.25rem" }}>{plan.rate}</div>
                   <p style={{ fontSize: "0.8rem", color: "var(--color-text-muted)", marginBottom: "1.25rem" }}>TAEG {plan.taeg}</p>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem", marginBottom: "1.25rem" }}>
+                  <div className="grid grid-cols-1 md:grid-cols-2" style={{gap: "0.5rem", marginBottom: "1.25rem"}}>
                     {[
                       { l: lang === 'fr' ? "Montant max" : "Importe max", v: plan.maxAmount },
                       { l: lang === 'fr' ? "Durée max" : "Plazo max", v: plan.maxDuration },
@@ -198,7 +198,7 @@ export default function PretPersonnelPage() {
             </div>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "3rem", marginBottom: "4rem" }}>
+          <div className="grid grid-cols-1 md:grid-cols-2" style={{gap: "3rem", marginBottom: "4rem"}}>
             {/* Eligibility */}
             <div>
               <h2 style={{ fontSize: "1.5rem", marginBottom: "1.25rem" }}>{lang === 'fr' ? "À qui s'adresse ce prêt ?" : "¿A quién va dirigido este préstamo?"}</h2>
@@ -263,7 +263,7 @@ export default function PretPersonnelPage() {
             <p style={{ textAlign: "center", color: "var(--color-text-muted)", fontSize: "0.9rem", marginBottom: "2rem" }}>
               {lang === 'fr' ? "Conformément à l'article L312-28 du Code de la consommation" : "Conforme a la normativa de crédito al consumo"}
             </p>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1.25rem" }}>
+            <div className="grid grid-cols-1 md:grid-cols-3" style={{gap: "1.25rem"}}>
               {examples.map((ex, i) => (
                 <div
                   key={i}

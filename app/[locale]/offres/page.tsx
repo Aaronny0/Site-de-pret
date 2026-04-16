@@ -296,7 +296,7 @@ export default function OffresPage() {
           </div>
 
           {/* Grid */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1.5rem" }}>
+          <div className="grid grid-cols-1 md:grid-cols-3" style={{gap: "1.5rem"}}>
             {filtered.map(({ id, icon: Icon, label, routeKey, rate, taeg, min, max, duration, color, tag, tagColor, advantages }) => (
               <article
                 key={id}
@@ -339,7 +339,7 @@ export default function OffresPage() {
                 {/* Card body */}
                 <div style={{ padding: "1.25rem 1.5rem" }}>
                   {/* Specs */}
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem", marginBottom: "1.25rem" }}>
+                  <div className="grid grid-cols-1 md:grid-cols-2" style={{gap: "0.5rem", marginBottom: "1.25rem"}}>
                     {[
                       { label: "Min", value: min },
                       { label: "Max", value: max },

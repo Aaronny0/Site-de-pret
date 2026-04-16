@@ -1,24 +1,19 @@
 import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 
-// Configuration explicite et robuste du transporteur SMTP pour Gmail
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com', // Serveur SMTP sortant officiel de Google
-  port: 465,              // Port natif pour SMTP sécurisé (SMTPS)
-  secure: true,           // Oblige la connexion à être immédiatement sécurisée en SSL/TLS (requis pour le port 465)
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_APP_PASSWORD,
-  },
-  tls: {
-    // Évite certaines erreurs de SSL dans des environnements serverless agressifs
-    rejectUnauthorized: false
-  }
-});
-
 export async function POST(request: Request) {
   try {
     const { to, subject, html } = await request.json();
+
+    console.log("SENDING EMAIL VIA API. User:", process.env.EMAIL_USER ? "DEFINED" : "MISSING", " Password: ", process.env.EMAIL_APP_PASSWORD ? "DEFINED" : "MISSING");
+
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_APP_PASSWORD) {
+      console.error("Missing EMAIL_USER or EMAIL_APP_PASSWORD environment variables!");
+      return NextResponse.json(
+        { error: 'Configuration serveur manquante pour l\'envoi d\'email.' },
+        { status: 500 }
+      );
+    }
 
     if (!to || !subject || !html) {
       return NextResponse.json(
@@ -26,6 +21,20 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+
+    // Configuration explicite et robuste du transporteur SMTP pour Gmail
+    const transporter = nodemailer.createTransport({
+      host: 'smtp.gmail.com', 
+      port: 465,              
+      secure: true,           
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_APP_PASSWORD,
+      },
+      tls: {
+        rejectUnauthorized: false
+      }
+    });
 
     const info = await transporter.sendMail({
       from: `"FinancePro" <${process.env.EMAIL_USER}>`,

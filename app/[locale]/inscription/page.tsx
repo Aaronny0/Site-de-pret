@@ -229,7 +229,7 @@ export default function SignupPage() {
           {/* Form */}
           <form onSubmit={handleSubmit}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div className="grid grid-cols-1 md:grid-cols-2" style={{gap: '1rem'}}>
                 <div className="form-group">
                   <label className="form-label" htmlFor="signup-first" style={{ fontWeight: 600, fontSize: '0.85rem' }}>Prénom</label>
                   <div style={{ position: 'relative' }}>

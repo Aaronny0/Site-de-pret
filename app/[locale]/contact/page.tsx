@@ -52,7 +52,7 @@ export default function ContactPage() {
 
       <section style={{ background: "var(--color-bg)", padding: "3rem 0 5rem" }}>
         <div className="container">
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 380px", gap: "3rem", alignItems: "start" }}>
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px]" style={{gap: "3rem", alignItems: "start"}}>
 
             {/* Form */}
             <div className="card" style={{ padding: "2.5rem" }}>
@@ -85,7 +85,7 @@ export default function ContactPage() {
                       </div>
                     </div>
 
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                    <div className="grid grid-cols-1 md:grid-cols-2" style={{gap: "1rem"}}>
                       <div className="form-group">
                         <label className="form-label form-label-required" htmlFor="cfirstName">{t.first_name || "Nombre"}</label>
                         <input id="cfirstName" type="text" className={`form-input ${errors.firstName ? "error" : ""}`} value={form.firstName} onChange={(e) => setForm((f) => ({ ...f, firstName: e.target.value }))} autoComplete="given-name" />

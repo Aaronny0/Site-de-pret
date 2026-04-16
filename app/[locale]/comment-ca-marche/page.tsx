@@ -111,7 +111,7 @@ export default function CommentCaMarchePage() {
         <div className="container">
 
           {/* Guarantees */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1.25rem", marginBottom: "4rem" }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4" style={{gap: "1.25rem", marginBottom: "4rem"}}>
             {guarantees.map(({ icon: Icon, title, desc }) => (
               <div key={title} style={{ textAlign: "center", padding: "1.5rem 1rem" }}>
                 <div style={{ width: "52px", height: "52px", borderRadius: "var(--radius-xl)", background: "rgba(0,200,150,0.1)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 0.875rem" }}>
@@ -183,7 +183,7 @@ export default function CommentCaMarchePage() {
                   </div>
                   <p style={{ color: "var(--color-text-muted)", lineHeight: "1.7", marginBottom: "1.25rem" }}>{step.desc}</p>
 
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem", marginBottom: step.cta ? "1.25rem" : "0" }}>
+                  <div className="grid grid-cols-1 md:grid-cols-2" style={{gap: "0.5rem", marginBottom: step.cta ? "1.25rem" : "0"}}>
                     {step.details.map((d) => (
                       <div key={d} style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                         <Check size={14} style={{ color: step.color, flexShrink: 0 }} />
@@ -207,7 +207,7 @@ export default function CommentCaMarchePage() {
           <div style={{ marginTop: "4rem", maxWidth: "900px", margin: "4rem auto 0" }}>
             <div className="card" style={{ padding: "2.5rem" }}>
               <h2 style={{ textAlign: "center", marginBottom: "2rem" }}>📋 Les documents à préparer</h2>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1.25rem" }}>
+              <div className="grid grid-cols-1 md:grid-cols-3" style={{gap: "1.25rem"}}>
                 {[
                   { title: "Toujours requis", icon: "🆔", docs: ["CNI ou Passeport (recto/verso)", "Justificatif de domicile < 3 mois", "3 derniers relevés bancaires", "RIB du compte à créditer"] },
                   { title: "Revenus salariés", icon: "💼", docs: ["3 derniers bulletins de salaire", "Contrat de travail (CDI/CDD)", "Dernier avis d'imposition", "Attestation employeur (si CDD)"] },

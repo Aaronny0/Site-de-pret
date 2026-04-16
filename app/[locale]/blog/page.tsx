@@ -101,7 +101,7 @@ export default function BlogPage() {
       <section style={{ background: "var(--color-bg)", padding: "4rem 0" }}>
         <div className="container">
            {/* Article à la une */}
-           <div style={{ background: "var(--color-surface)", borderRadius: "var(--radius-xl)", overflow: "hidden", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0", marginBottom: "4rem", border: "1px solid var(--color-border)" }}>
+           <div className="grid grid-cols-1 md:grid-cols-2" style={{background: "var(--color-surface)", borderRadius: "var(--radius-xl)", overflow: "hidden", gap: "0", marginBottom: "4rem", border: "1px solid var(--color-border)"}}>
              <div style={{ background: "var(--color-bg-alt)", minHeight: "300px" }}>
                <div style={{ width: "100%", height: "100%", background: "linear-gradient(45deg, #eee, #ddd)", display: "flex", alignItems: "center", justifyContent: "center", color: "#999" }}>
                   {lang === 'fr' ? 'Image "Une"' : 'Imagen "Destacada"'}

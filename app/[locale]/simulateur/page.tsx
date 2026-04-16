@@ -140,7 +140,7 @@ export default function SimulateurPage() {
       {/* Main Content */}
       <section style={{ background: "var(--color-bg)", padding: "3rem 0 5rem" }}>
         <div className="container">
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 400px", gap: "2rem", alignItems: "start" }}>
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px]" style={{gap: "2rem", alignItems: "start"}}>
 
             {/* Left — Inputs */}
             <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
@@ -186,8 +186,7 @@ export default function SimulateurPage() {
                   <label style={{ fontSize: "0.9rem", fontWeight: "600", display: "block", marginBottom: "0.75rem", color: "var(--color-text)" }}>
                     {dict?.simulator?.loan_type || (lang === 'fr' ? 'Type de prêt' : 'Tipo de préstamo')}
                   </label>
-                  <div
-                    style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "0.625rem" }}
+                  <div className="grid grid-cols-1 md:grid-cols-3" style={{gap: "0.625rem"}}
                     role="radiogroup"
                     aria-label="Type de prêt"
                   >
@@ -342,8 +341,7 @@ export default function SimulateurPage() {
                   <label className="form-label" style={{ marginBottom: "0.625rem", display: "block" }}>
                     {dict?.simulator?.status_label || (lang === 'fr' ? 'Situation professionnelle' : 'Situación profesional')}
                   </label>
-                  <div
-                    style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "0.5rem" }}
+                  <div className="grid grid-cols-1 md:grid-cols-3" style={{gap: "0.5rem"}}
                     role="radiogroup"
                     aria-label="Situation professionnelle"
                   >

@@ -201,7 +201,7 @@ function QuickSimulator() {
           </div>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
+        <div className="grid grid-cols-1 md:grid-cols-2" style={{gap: "0.75rem"}}>
           {[
             { label: lang === 'fr' ? 'TAEG indicatif' : 'TAE indicativa', value: `${taeg.toFixed(2)} %` },
             { label: lang === 'fr' ? 'Coût total' : 'Coste total', value: formatCurrency(totalCost) },
@@ -565,7 +565,7 @@ export default function HomePage() {
       {/* ===== STATS SECTION ===== */}
       <section style={{ background: "var(--color-surface)", borderBottom: "1px solid var(--color-border)" }}>
         <div className="container" style={{ padding: "0 var(--container-padding)" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)" }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4" >
             {[
               { icon: Users, value: 15000, suffix: "+", label: dict?.home?.stats_funded || "Projets financés", color: "var(--color-primary)" },
               { icon: Star, value: 98, suffix: "%", label: dict?.home?.stats_sat || "Satisfaction client", color: "var(--color-gold)" },
@@ -607,7 +607,7 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "2rem" }}>
+          <div className="grid grid-cols-1 md:grid-cols-3" style={{gap: "2rem"}}>
             {(lang === 'fr' ? [
               {
                 icon: Shield,
@@ -698,7 +698,7 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1.25rem" }}>
+          <div className="grid grid-cols-1 md:grid-cols-3" style={{gap: "1.25rem"}}>
             {loanTypes.map(({ icon: Icon, label, href, routeKey, rate, color, desc }, i) => (
               <Link
                 key={href}
@@ -905,7 +905,7 @@ export default function HomePage() {
           </div>
 
           {/* Grid of all testimonials */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1.25rem" }}>
+          <div className="grid grid-cols-1 md:grid-cols-3" style={{gap: "1.25rem"}}>
             {testimonials.map((t, i) => (
               <div
                 key={i}
@@ -937,7 +937,7 @@ export default function HomePage() {
 
       {/* ===== QUICK FAQ ===== */}
       <section className="section-sm" style={{ background: "var(--color-surface)" }} aria-labelledby="faq-quick-title">
-        <div className="container" style={{ maxWidth: "800px" }}>
+        <div className="container" style={{ maxWidth: "800px", width: "100%" }}>
           <div style={{ textAlign: "center", marginBottom: "2rem" }}>
             <h2 id="faq-quick-title" style={{ fontSize: "1.75rem" }}>{lang === 'fr' ? 'Questions fréquentes' : 'Preguntas frecuentes'}</h2>
           </div>

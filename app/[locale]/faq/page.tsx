@@ -167,7 +167,7 @@ export default function FAQPage() {
               </div>
             </div>
           ) : (
-            <div style={{ display: "grid", gridTemplateColumns: "220px 1fr", gap: "2rem", alignItems: "start" }}>
+            <div className="grid grid-cols-1 md:grid-cols-[220px_1fr]" style={{gap: "2rem", alignItems: "start"}}>
               {/* Category nav */}
               <nav style={{ position: "sticky", top: "5rem" }} aria-label="Catégories FAQ">
                 <div style={{ display: "flex", flexDirection: "column", gap: "0.375rem" }}>

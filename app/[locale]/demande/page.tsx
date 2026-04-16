@@ -459,7 +459,7 @@ export default function DemandePage() {
                     />
                   </div>
 
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.25rem" }}>
+                  <div className="grid grid-cols-1 md:grid-cols-2" style={{gap: "1.25rem"}}>
                     <div className="form-group">
                       <label className="form-label form-label-required" htmlFor="amount">Montant demandé (€)</label>
                       <input
@@ -538,7 +538,7 @@ export default function DemandePage() {
                 </legend>
 
                 <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-                  <div style={{ display: "grid", gridTemplateColumns: "130px 1fr 1fr", gap: "1rem" }}>
+                  <div className="grid grid-cols-1 md:grid-cols-[130px_1fr_1fr]" style={{gap: "1rem"}}>
                     <div className="form-group">
                       <label className="form-label" htmlFor="civility">Civilité</label>
                       <select id="civility" className="form-select" value={form.civility} onChange={(e) => updateForm("civility", e.target.value)}>
@@ -557,7 +557,7 @@ export default function DemandePage() {
                     </div>
                   </div>
 
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                  <div className="grid grid-cols-1 md:grid-cols-2" style={{gap: "1rem"}}>
                     <div className="form-group">
                       <label className="form-label form-label-required" htmlFor="birthDate">Date de naissance</label>
                       <input id="birthDate" type="date" className={`form-input ${errors.birthDate ? "error" : ""}`} value={form.birthDate} onChange={(e) => updateForm("birthDate", e.target.value)} autoComplete="bday" max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split("T")[0]} />
@@ -569,7 +569,7 @@ export default function DemandePage() {
                     </div>
                   </div>
 
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                  <div className="grid grid-cols-1 md:grid-cols-2" style={{gap: "1rem"}}>
                     <div className="form-group">
                       <label className="form-label" htmlFor="maritalStatus">Situation familiale</label>
                       <select id="maritalStatus" className="form-select" value={form.maritalStatus} onChange={(e) => updateForm("maritalStatus", e.target.value)}>
@@ -588,7 +588,7 @@ export default function DemandePage() {
                     {errors.address && <span className="form-error"><AlertCircle size={12} />{errors.address}</span>}
                   </div>
 
-                  <div style={{ display: "grid", gridTemplateColumns: "130px 1fr", gap: "1rem" }}>
+                  <div className="grid grid-cols-1 md:grid-cols-[130px_1fr]" style={{gap: "1rem"}}>
                     <div className="form-group">
                       <label className="form-label form-label-required" htmlFor="zipCode">Code postal</label>
                       <input id="zipCode" type="text" className="form-input" value={form.zipCode} onChange={(e) => updateForm("zipCode", e.target.value)} autoComplete="postal-code" maxLength={5} />
@@ -630,7 +630,7 @@ export default function DemandePage() {
                 <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
                   <div className="form-group">
                     <label className="form-label form-label-required" htmlFor="professionalStatus">Statut professionnel</label>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "0.5rem" }} role="radiogroup" aria-label="Statut professionnel">
+                    <div className="grid grid-cols-1 md:grid-cols-3" style={{gap: "0.5rem"}} role="radiogroup" aria-label="Statut professionnel">
                       {statusOptions.map((s) => (
                         <button
                           key={s}
@@ -657,7 +657,7 @@ export default function DemandePage() {
                     </div>
                   </div>
 
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                  <div className="grid grid-cols-1 md:grid-cols-2" style={{gap: "1rem"}}>
                     <div className="form-group">
                       <label className="form-label" htmlFor="employer">Employeur / Entreprise</label>
                       <input id="employer" type="text" className="form-input" value={form.employer} onChange={(e) => updateForm("employer", e.target.value)} />
@@ -834,7 +834,7 @@ export default function DemandePage() {
                 {/* Summary */}
                 <div style={{ background: "var(--color-bg-alt)", borderRadius: "var(--radius-lg)", padding: "1.5rem", marginBottom: "2rem" }}>
                   <h3 style={{ fontFamily: "var(--font-body)", fontSize: "1rem", fontWeight: "700", marginBottom: "1rem" }}>Récapitulatif de votre demande</h3>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.625rem" }}>
+                  <div className="grid grid-cols-1 md:grid-cols-2" style={{gap: "0.625rem"}}>
                     {[
                       { l: "Type de prêt", v: form.loanType },
                       { l: "Montant", v: `${form.amount.toLocaleString("fr-FR")} €` },

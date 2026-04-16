@@ -7,7 +7,7 @@ export default function AProposPage() {
   return (
     <>
       <section style={{ background: "linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 100%)", padding: "5rem 0", textAlign: "center" }}>
-        <div className="container" style={{ maxWidth: "800px" }}>
+        <div className="container" style={{ maxWidth: "800px", width: "100%" }}>
           <h1 style={{ color: "white", fontFamily: "var(--font-display)", fontSize: "clamp(2rem, 5vw, 3.5rem)", marginBottom: "1rem" }}>
             Mieux financer demain
           </h1>
@@ -35,7 +35,7 @@ export default function AProposPage() {
             ))}
           </div>
 
-          <div style={{ background: "var(--color-surface)", borderRadius: "var(--radius-xl)", padding: "3rem", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "3rem", alignItems: "center" }}>
+          <div className="grid grid-cols-1 md:grid-cols-2" style={{background: "var(--color-surface)", borderRadius: "var(--radius-xl)", padding: "3rem", gap: "3rem", alignItems: "center"}}>
             <div>
               <h2 style={{ fontSize: "2rem", marginBottom: "1.5rem" }}>L'équipe FinancePro</h2>
               <p style={{ color: "var(--color-text-muted)", lineHeight: "1.8", marginBottom: "1.5rem" }}>
@@ -46,7 +46,7 @@ export default function AProposPage() {
                 Nous contacter <ArrowRight size={16} />
               </Link>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+            <div className="grid grid-cols-1 md:grid-cols-2" style={{gap: "1rem"}}>
               {[
                 { number: "20+", label: "Partenaires bancaires" },
                 { number: "150k+", label: "Projets financés" },
