@@ -64,6 +64,7 @@ export default function EspaceClientPage() {
   const [applications, setApplications] = useState<any[]>([]);
   const [profile, setProfile] = useState<any>(null);
   const [notifications, setNotifications] = useState(1);
+  const [notifOpen, setNotifOpen] = useState(false);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const router = useRouter();
 
@@ -78,15 +79,19 @@ export default function EspaceClientPage() {
       setUser(user);
 
       // Charger les demandes et le profil
-      const [appsRes, profileRes] = await Promise.all([
-        getUserApplications(user.id),
-        getUserProfile(user.id)
-      ]);
+      try {
+        const [appsRes, profileRes] = await Promise.all([
+          getUserApplications(user.id),
+          getUserProfile(user.id)
+        ]);
 
-      if (appsRes.success) setApplications(appsRes.applications || []);
-      if (profileRes.success) setProfile(profileRes.profile || null);
-
-      setLoading(false);
+        if (appsRes && appsRes.success) setApplications(appsRes.applications || []);
+        if (profileRes && profileRes.success) setProfile(profileRes.profile || null);
+      } catch (error) {
+        console.error("Erreur lors du chargement des données de l'espace client:", error);
+      } finally {
+        setLoading(false);
+      }
     }
     loadData();
   }, [router]);
@@ -145,18 +150,56 @@ export default function EspaceClientPage() {
           <div>
             <p style={{ color: "rgba(255,255,255,0.65)", fontSize: "0.85rem" }}>Bonjour,</p>
             <h1 style={{ color: "white", fontFamily: "var(--font-body)", fontSize: "1.35rem", fontWeight: "700" }}>
-              {user?.user_metadata?.first_name || "Client"} {user?.user_metadata?.last_name || ""}
+              {profile?.first_name || latestApp?.personal_data?.firstName || user?.user_metadata?.first_name || "Client"} {profile?.last_name || latestApp?.personal_data?.lastName || user?.user_metadata?.last_name || ""}
             </h1>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-            <button style={{ position: "relative", background: "rgba(255,255,255,0.1)", border: "none", borderRadius: "50%", width: "40px", height: "40px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "white" }} aria-label={`${notifications} notifications non lues`}>
-              <Bell size={18} />
-              {notifications > 0 && (
-                <span style={{ position: "absolute", top: "-4px", right: "-4px", background: "var(--color-danger)", color: "white", width: "18px", height: "18px", borderRadius: "50%", fontSize: "0.7rem", fontWeight: "700", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  {notifications}
-                </span>
+            <div style={{ position: "relative" }}>
+              <button 
+                onClick={() => setNotifOpen(!notifOpen)}
+                style={{ position: "relative", background: "rgba(255,255,255,0.1)", border: "none", borderRadius: "50%", width: "40px", height: "40px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "white" }} aria-label={`${notifications} notifications non lues`}
+              >
+                <Bell size={18} />
+                {notifications > 0 && (
+                  <span style={{ position: "absolute", top: "-4px", right: "-4px", background: "var(--color-danger)", color: "white", width: "18px", height: "18px", borderRadius: "50%", fontSize: "0.7rem", fontWeight: "700", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    {notifications}
+                  </span>
+                )}
+              </button>
+              
+              {notifOpen && (
+                <div style={{ position: "absolute", top: "calc(100% + 10px)", right: 0, width: "320px", background: "white", borderRadius: "var(--radius-md)", boxShadow: "0 10px 40px rgba(0,0,0,0.2)", border: "1px solid var(--color-border)", zIndex: 100, overflow: "hidden", textAlign: "left" }}>
+                  <div style={{ padding: "1rem", borderBottom: "1px solid var(--color-border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <h3 style={{ fontSize: "0.95rem", fontWeight: "600", margin: 0, color: "var(--color-text)" }}>Notifications</h3>
+                    <span className="badge badge-primary" style={{ fontSize: "0.7rem" }}>{notifications} nouvelle</span>
+                  </div>
+                  <div style={{ maxHeight: "300px", overflowY: "auto" }}>
+                    {applications.length > 0 ? (
+                      <div style={{ padding: "1rem", borderBottom: "1px solid var(--color-border)", background: "rgba(59, 130, 246, 0.05)" }}>
+                        <div style={{ display: "flex", gap: "0.75rem", alignItems: "flex-start" }}>
+                           <div style={{ background: "rgba(59, 130, 246, 0.1)", color: "#2563EB", padding: "0.5rem", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                              <Clock size={16} />
+                           </div>
+                           <div>
+                              <p style={{ fontSize: "0.85rem", color: "var(--color-text)", margin: 0, fontWeight: "500", lineHeight: "1.4" }}>
+                                Votre demande <span style={{ fontWeight: 700 }}>n° {applications[0]?.dossier_number || "FP-..."}</span> a mis à jour son statut.
+                              </p>
+                              <p style={{ fontSize: "0.75rem", color: "var(--color-primary)", margin: "0.35rem 0 0 0", fontWeight: 600, display: "flex", alignItems: "center", gap: "0.2rem" }}>
+                                <AlertCircle size={12} />
+                                Consulter le suivi
+                              </p>
+                           </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div style={{ padding: "1.5rem", textAlign: "center", color: "var(--color-text-muted)", fontSize: "0.85rem" }}>
+                        Aucune nouvelle notification.
+                      </div>
+                    )}
+                  </div>
+                </div>
               )}
-            </button>
+            </div>
             <button
               onClick={() => logout()}
               className="btn btn-sm"
@@ -220,10 +263,10 @@ export default function EspaceClientPage() {
                           <p style={{ color: "white", fontFamily: "var(--font-mono)", fontSize: "0.875rem" }}>N° {latestApp.dossier_number}</p>
                         </div>
                         <span className={`badge ${
-                          latestApp.status === 'pending' ? 'badge-primary' : 
+                          latestApp.status === 'pending' ? 'badge-warning' : 
                           latestApp.status === 'approved' ? 'badge-success' : 
                           latestApp.status === 'rejected' ? 'badge-danger' : 'badge-info'
-                        }`}>
+                        }`} style={latestApp.status === 'pending' ? { color: '#FCD34D', borderColor: 'rgba(252,211,77,0.4)', background: 'rgba(252,211,77,0.15)' } : {}}>
                           {latestApp.status === 'pending' ? 'En attente' : 
                            latestApp.status === 'processing' ? 'En cours' : 
                            latestApp.status === 'approved' ? 'Approuvé' : 
@@ -269,7 +312,7 @@ export default function EspaceClientPage() {
                 )}
 
                 {/* Notifications */}
-                <div className="card" style={{ padding: "1.25rem 1.5rem", marginBottom: "1.5rem" }}>
+                <div id="notifications-section" className="card" style={{ padding: "1.25rem 1.5rem", marginBottom: "1.5rem" }}>
                   <h2 style={{ fontFamily: "var(--font-body)", fontSize: "1rem", fontWeight: "700", marginBottom: "1rem" }}>
                     Notifications ({notifications})
                   </h2>
@@ -452,12 +495,12 @@ export default function EspaceClientPage() {
               <form className="card" style={{ padding: "2rem" }} onSubmit={handleUpdateProfile}>
                 <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
                   {[
-                    { l: "Prénom", v: profile?.first_name || user?.user_metadata?.first_name || "", name: "first_name" },
-                    { l: "Nom", v: profile?.last_name || user?.user_metadata?.last_name || "", name: "last_name" },
+                    { l: "Prénom", v: profile?.first_name || latestApp?.personal_data?.firstName || user?.user_metadata?.first_name || "", name: "first_name" },
+                    { l: "Nom", v: profile?.last_name || latestApp?.personal_data?.lastName || user?.user_metadata?.last_name || "", name: "last_name" },
                     { l: "Email", v: user?.email || "", name: "email", disabled: true },
-                    { l: "Téléphone", v: profile?.phone || "", name: "phone" },
-                    { l: "Adresse", v: profile?.address || "", name: "address" },
-                    { l: "Ville", v: profile?.city || "", name: "city" },
+                    { l: "Téléphone", v: profile?.phone || latestApp?.personal_data?.phone || "", name: "phone" },
+                    { l: "Adresse", v: profile?.address || latestApp?.personal_data?.address || "", name: "address" },
+                    { l: "Ville", v: profile?.city || latestApp?.personal_data?.city || "", name: "city" },
                   ].map(({ l, v, name, disabled }) => (
                     <div className="form-group" key={name}>
                       <label className="form-label" htmlFor={name}>{l}</label>

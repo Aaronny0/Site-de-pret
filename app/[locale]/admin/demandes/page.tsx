@@ -26,7 +26,7 @@ import {
   Building2,
   Clock,
 } from 'lucide-react'
-import { getAllDemandes, updateDemandeStatus, getDocumentUrl } from '@/app/admin/actions'
+import { getAllDemandes, updateDemandeStatus, getDocumentUrl, requestMissingDocuments } from '@/app/admin/actions'
 
 // ─── Demo Data (All 5 steps) ────────────────────────────────────────────────
 const demoDemandes = [
@@ -189,12 +189,14 @@ const docIcons: Record<string, React.ElementType> = {
 type DemoDemande = typeof demoDemandes[0]
 
 // ─── Detail Panel ───────────────────────────────────────────────────────────
-function DetailPanel({ demande, onClose, onStatusChange }: {
+function DetailPanel({ demande, onClose, onStatusChange, onReclamation }: {
   demande: DemoDemande
   onClose: () => void
-  onStatusChange: (id: string, status: string) => void
+  onStatusChange: (id: string, status: string, notes?: string) => void
+  onReclamation: (id: string, notes: string) => void
 }) {
   const [activeTab, setActiveTab] = useState<'projet' | 'situation' | 'documents' | 'actions'>('projet')
+  const [notes, setNotes] = useState(demande.notes || '')
   const sc = statusConfig[demande.status]
 
   const tabs = [
@@ -357,7 +359,7 @@ function DetailPanel({ demande, onClose, onStatusChange }: {
                 { icon: Users, l: 'Situation familiale', v: demande.personal.maritalStatus },
                 { icon: Users, l: 'Personnes à charge', v: String(demande.personal.dependents) },
                 { icon: MapPin, l: 'Adresse', v: `${demande.personal.address}, ${demande.personal.zipCode} ${demande.personal.city}` },
-                { icon: Mail, l: 'Email', v: demande.personal.email },
+                { icon: Mail, l: 'Email', v: <a href={`mailto:${demande.personal.email}`} style={{ color: 'var(--color-info)', textDecoration: 'underline' }}>{demande.personal.email || "Non renseigné"}</a> },
                 { icon: Phone, l: 'Téléphone', v: demande.personal.phone },
               ].map(({ icon: Icon, l, v }) => (
                 <div key={l} style={{ padding: '0.75rem', background: 'var(--color-bg-alt)', borderRadius: 'var(--radius-md)', display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
@@ -509,7 +511,8 @@ function DetailPanel({ demande, onClose, onStatusChange }: {
                 Notes internes
               </label>
               <textarea
-                defaultValue={demande.notes || ''}
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
                 placeholder="Ajouter des notes sur ce dossier..."
                 style={{
                   width: '100%',
@@ -542,7 +545,7 @@ function DetailPanel({ demande, onClose, onStatusChange }: {
             {/* Action Buttons */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               <button
-                onClick={() => onStatusChange(demande.id, 'approved')}
+                onClick={() => onStatusChange(demande.id, 'approved', notes)}
                 className="btn"
                 style={{
                   width: '100%',
@@ -557,7 +560,7 @@ function DetailPanel({ demande, onClose, onStatusChange }: {
                 Approuver la demande
               </button>
               <button
-                onClick={() => onStatusChange(demande.id, 'rejected')}
+                onClick={() => onStatusChange(demande.id, 'rejected', notes)}
                 className="btn"
                 style={{
                   width: '100%',
@@ -572,6 +575,7 @@ function DetailPanel({ demande, onClose, onStatusChange }: {
                 Refuser la demande
               </button>
               <button
+                onClick={() => onReclamation(demande.id, notes)}
                 className="btn btn-ghost"
                 style={{ width: '100%', justifyContent: 'center', gap: '0.5rem' }}
               >
@@ -675,11 +679,11 @@ export default function AdminDemandesPage() {
     return matchesStatus && matchesSearch
   })
 
-  async function handleStatusChange(id: string, newStatus: string) {
+  async function handleStatusChange(id: string, newStatus: string, notes?: string) {
     try {
-      const res = await updateDemandeStatus(id, newStatus);
+      const res = await updateDemandeStatus(id, newStatus, notes);
       if (res.success) {
-        setDemandes((prev) => prev.map((d) => d.id === id ? { ...d, status: newStatus as DemoStatus } : d))
+        setDemandes((prev) => prev.map((d) => d.id === id ? { ...d, status: newStatus as DemoStatus, notes } : d))
         setSelectedDemande(null)
       } else {
         alert("Erreur lors de la mise à jour : " + res.error);
@@ -687,6 +691,28 @@ export default function AdminDemandesPage() {
     } catch (e) {
       console.error(e);
       alert("Erreur de connexion avec le serveur.");
+    }
+  }
+
+  async function handleReclamation(id: string, notes: string) {
+    try {
+      if (!notes) {
+        alert("Veuillez saisir dans 'Notes internes' les pièces demandées avant de cliquer.");
+        return;
+      }
+      const demande = demandes.find((d) => d.id === id);
+      if (!demande) return;
+
+      const res = await requestMissingDocuments(id, demande.personal.email, demande.personal.firstName, demande.dossier_number, notes);
+      if (res.success) {
+        alert("Mail de demande de documents expédié avec succès à " + demande.personal.email);
+        setDemandes((prev) => prev.map((d) => d.id === id ? { ...d, notes } : d));
+      } else {
+        alert("Erreur lors de l'envoi : " + res.error);
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Erreur serveur lors de la demande de pièces.");
     }
   }
 
@@ -778,7 +804,11 @@ export default function AdminDemandesPage() {
                           <span style={{ fontWeight: 600, fontSize: '0.9rem', display: 'block' }}>
                             {d.personal.firstName} {d.personal.lastName}
                           </span>
-                          <span style={{ fontSize: '0.775rem', color: 'var(--color-text-muted)' }}>{d.personal.city}</span>
+                          <span style={{ fontSize: '0.775rem', color: 'var(--color-text-muted)', display: 'block' }}>{d.personal.city}</span>
+                          <a href={`mailto:${d.personal.email}`} onClick={e => e.stopPropagation()} style={{ fontSize: '0.75rem', color: 'var(--color-info)', display: 'flex', alignItems: 'center', gap: '0.25rem', marginTop: '0.25rem', textDecoration: 'none', fontWeight: 500 }}>
+                            <Mail size={10} />
+                            {d.personal.email || "Non renseigné"}
+                          </a>
                         </div>
                       </div>
                     </td>
@@ -853,6 +883,7 @@ export default function AdminDemandesPage() {
               demande={selectedDemande}
               onClose={() => setSelectedDemande(null)}
               onStatusChange={handleStatusChange}
+              onReclamation={handleReclamation}
             />
           </>
         )}

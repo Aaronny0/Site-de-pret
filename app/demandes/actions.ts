@@ -2,10 +2,15 @@
 
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+function getSupabaseAdmin() {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    throw new Error("Missing Supabase environment variables. Please configure SUPABASE_SERVICE_ROLE_KEY.");
+  }
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY
+  );
+}
 
 export async function submitLoanApplication(formData: any, uploadedDocs: any) {
   try {
@@ -30,6 +35,7 @@ export async function submitLoanApplication(formData: any, uploadedDocs: any) {
     }))
 
     // 2. Insérer dans loan_applications
+    const supabaseAdmin = getSupabaseAdmin();
     const { data, error } = await supabaseAdmin
       .from('loan_applications')
       .insert({
@@ -56,6 +62,7 @@ export async function submitLoanApplication(formData: any, uploadedDocs: any) {
 
 export async function getUserApplications(userId: string) {
   try {
+    const supabaseAdmin = getSupabaseAdmin();
     const { data, error } = await supabaseAdmin
       .from('loan_applications')
       .select('*')
@@ -72,6 +79,7 @@ export async function getUserApplications(userId: string) {
 
 export async function getUserProfile(userId: string) {
   try {
+    const supabaseAdmin = getSupabaseAdmin();
     const { data, error } = await supabaseAdmin
       .from('profiles')
       .select('*')
@@ -88,6 +96,7 @@ export async function getUserProfile(userId: string) {
 
 export async function updateUserProfile(userId: string, profileData: any) {
   try {
+    const supabaseAdmin = getSupabaseAdmin();
     const { data, error } = await supabaseAdmin
       .from('profiles')
       .update(profileData)

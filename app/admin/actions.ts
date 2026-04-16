@@ -180,3 +180,43 @@ export async function getDocumentUrl(path: string) {
   }
 }
 
+export async function requestMissingDocuments(id: string, email: string, firstName: string, dossierNumber: string, notes: string) {
+  try {
+    const subject = `Action requise : Pièces complémentaires (Dossier n° ${dossierNumber})`;
+    const html = `
+      <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #D97706;">Bonjour ${firstName},</h2>
+        <p>Afin d'avancer sur l'analyse de votre dossier (<strong>${dossierNumber}</strong>), nous avons besoin de pièces complémentaires :</p>
+        <div style="background-color: #fef3c7; padding: 15px; border-left: 4px solid #f59e0b; margin: 20px 0; border-radius: 4px;">
+          <p style="margin: 0; white-space: pre-wrap;">${notes || "Merci de bien vouloir vous connecter à votre espace client pour vérifier les documents demandés."}</p>
+        </div>
+        <p>Vous pouvez téléverser ces documents directement dans votre <strong>Espace Client</strong>.</p>
+        <p>Nous restons à votre entière disposition pour toute question.</p>
+        <br/>
+        <p>Cordialement,</p>
+        <p><strong>L'équipe FinancePro</strong></p>
+      </div>
+    `;
+
+    // Mettre à jour les notes dans la BDD pour garder une trace
+    await supabaseAdmin
+      .from('loan_applications')
+      .update({ notes: notes })
+      .eq('id', id);
+
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+    const res = await fetch(`${baseUrl}/api/send-email`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ to: email, subject, html })
+    });
+
+    if (!res.ok) throw new Error("L'API d'envoi d'email a échoué.");
+
+    return { success: true };
+  } catch (error) {
+    console.error('Erreur requestMissingDocuments:', error);
+    return { success: false, error: 'Impossible d\'envoyer l\'email.' };
+  }
+}
+

@@ -448,6 +448,13 @@ export default function Navbar() {
             </Link>
           )}
 
+          {user && (
+            <Link href={getLocalizedPath("client_area", locale)} className="btn btn-secondary btn-sm hide-mobile">
+              <User size={15} />
+              {dict?.navbar?.client_area || "Espace Client"}
+            </Link>
+          )}
+
           {/* CTA button */}
           <Link href={getLocalizedPath("request", locale)} className="btn btn-primary btn-sm">
             {dict?.common?.request_btn || dict?.common?.simulate_btn || "Hacer una solicitud"}

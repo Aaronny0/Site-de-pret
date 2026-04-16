@@ -564,13 +564,13 @@ export default function DemandePage() {
                   </div>
 
                   <div className="form-group">
-                    <label className="form-label form-label-required" htmlFor="email">Email</label>
+                    <label className="form-label form-label-required" htmlFor="email">Email personnel (pour vous joindre)</label>
                     <input id="email" type="email" className={`form-input ${errors.email ? "error" : ""}`} value={form.email} onChange={(e) => updateForm("email", e.target.value)} autoComplete="email" />
                     {errors.email && <span className="form-error"><AlertCircle size={12} />{errors.email}</span>}
                   </div>
 
                   <div className="form-group">
-                    <label className="form-label form-label-required" htmlFor="emailConfirm">Confirmation email</label>
+                    <label className="form-label form-label-required" htmlFor="emailConfirm">Confirmez votre email personnel</label>
                     <input id="emailConfirm" type="email" className={`form-input ${errors.emailConfirm ? "error" : ""}`} value={form.emailConfirm} onChange={(e) => updateForm("emailConfirm", e.target.value)} autoComplete="email" />
                     {errors.emailConfirm && <span className="form-error"><AlertCircle size={12} />{errors.emailConfirm}</span>}
                   </div>
