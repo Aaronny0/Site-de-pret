@@ -1,6 +1,11 @@
 'use server'
 
 import { createClient } from '@supabase/supabase-js'
+import { sendEmail, sendAdminEmail } from '@/lib/mailer'
+import {
+  applicationSubmittedTemplate,
+  adminNewApplicationTemplate,
+} from '@/lib/emailTemplates'
 
 function getSupabaseAdmin() {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
@@ -52,6 +57,41 @@ export async function submitLoanApplication(formData: any, uploadedDocs: any) {
       .single()
 
     if (error) throw error
+
+    // 3. Envoi des emails (non-bloquant — on ne fait pas échouer la soumission si l'email rate)
+    try {
+      const clientEmail = personalData.email;
+      const firstName = personalData.firstName;
+      const lastName = personalData.lastName;
+
+      if (clientEmail && firstName) {
+        // Email de confirmation au client
+        const clientTemplate = applicationSubmittedTemplate({
+          firstName,
+          dossierNumber,
+          loanType,
+          amount,
+          duration,
+        });
+        await sendEmail(clientEmail, clientTemplate.subject, clientTemplate.html);
+
+        // Notification admin
+        const adminTemplate = adminNewApplicationTemplate({
+          firstName,
+          lastName: lastName || '',
+          email: clientEmail,
+          phone: personalData.phone,
+          dossierNumber,
+          loanType,
+          amount,
+          duration,
+        });
+        await sendAdminEmail(adminTemplate.subject, adminTemplate.html, clientEmail);
+      }
+    } catch (emailError) {
+      // Log mais ne pas faire échouer la soumission
+      console.error('Emails post-soumission échoués (non-bloquant):', emailError);
+    }
 
     return { success: true, data }
   } catch (error) {

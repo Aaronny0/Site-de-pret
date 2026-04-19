@@ -2,6 +2,10 @@
 
 import { createClient } from '@supabase/supabase-js'
 import { sendEmail } from '@/lib/mailer'
+import {
+  statusChangeTemplate,
+  missingDocumentsTemplate,
+} from '@/lib/emailTemplates'
 
 // Initialiser le client admin avec la Service Role Key pour contourner le RLS
 const supabaseAdmin = createClient(
@@ -107,54 +111,23 @@ export async function updateDemandeStatus(id: string, status: string, notes?: st
     if (error) throw error
 
     // Envoi d'email automatique selon le statut
-    if (status === 'approved' || status === 'rejected') {
+    if (status === 'approved' || status === 'rejected' || status === 'processing') {
       const email = data.personal_data?.email;
       const firstName = data.personal_data?.firstName;
       
-      if (email) {
-        let subject = '';
-        let html = '';
+      if (email && firstName) {
+        const template = statusChangeTemplate({
+          firstName,
+          dossierNumber: data.dossier_number,
+          status: status as 'approved' | 'rejected' | 'processing',
+          notes: notes || undefined,
+        });
 
-        if (status === 'approved') {
-          subject = `Félicitations, votre demande de prêt ${data.dossier_number} est acceptée !`;
-          html = `
-            <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
-              <h2 style="color: #059669;">Bonne nouvelle ${firstName} !</h2>
-              <p>Nous avons le plaisir de vous annoncer que votre demande de financement (dossier n° <strong>${data.dossier_number}</strong>) a été <strong>approuvée</strong> par notre équipe.</p>
-              <p>Votre conseiller dédié reviendra vers vous très prochainement avec l'offre de prêt formelle et les prochaines étapes.</p>
-              <p>Pour toute question, n'hésitez pas à nous contacter.</p>
-              <br/>
-              <p>Cordialement,</p>
-              <p><strong>L'équipe FinancePro</strong></p>
-            </div>
-          `;
-        } else if (status === 'rejected') {
-          subject = `Décision concernant votre demande de prêt ${data.dossier_number}`;
-          html = `
-            <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
-              <h2>Bonjour ${firstName},</h2>
-              <p>Suite à l'étude attentive de votre demande de financement (dossier n° <strong>${data.dossier_number}</strong>), nous avons le regret de vous informer que nous ne pouvons pas y donner une suite favorable pour le moment.</p>
-              <p>Cette décision est motivée par les critères actuels de notre institution. Nous restons à votre disposition pour analyser des projets futurs ou vous fournir de plus amples explications.</p>
-              <br/>
-              <p>Soyez assuré(e) de notre plus grand respect pour l'intérêt que vous portez à nos services.</p>
-              <br/>
-              <p>Cordialement,</p>
-              <p><strong>L'équipe FinancePro</strong></p>
-            </div>
-          `;
-        }
-        
-        // Envoi direct sans fetch HTTP
-        console.log("Tentative d'envoi d'email à", email, "avec le statut", status);
-        const emailResult = await sendEmail(email, subject, html);
-        console.log("Résultat de sendEmail:", emailResult);
+        console.log(`Envoi email statut "${status}" à ${email}`);
+        const emailResult = await sendEmail(email, template.subject, template.html);
         
         if (!emailResult.success) {
-          console.error("Échec de l'envoi de l'email via sendEmail:", emailResult.error);
-          // Optionnel : on pourrait jeter une erreur ici pour annuler la mise à jour si l'email est obligatoire
-          // throw new Error("Mise à jour réussie mais l'envoi de l'email a échoué: " + emailResult.error);
-        } else {
-          console.log("Email envoyé avec succès! MessageID:", emailResult.messageId);
+          console.error("Échec envoi email statut:", emailResult.error);
         }
       }
     }
@@ -184,29 +157,19 @@ export async function getDocumentUrl(path: string) {
 
 export async function requestMissingDocuments(id: string, email: string, firstName: string, dossierNumber: string, notes: string) {
   try {
-    const subject = `Action requise : Pièces complémentaires (Dossier n° ${dossierNumber})`;
-    const html = `
-      <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #D97706;">Bonjour ${firstName},</h2>
-        <p>Afin d'avancer sur l'analyse de votre dossier (<strong>${dossierNumber}</strong>), nous avons besoin de pièces complémentaires :</p>
-        <div style="background-color: #fef3c7; padding: 15px; border-left: 4px solid #f59e0b; margin: 20px 0; border-radius: 4px;">
-          <p style="margin: 0; white-space: pre-wrap;">${notes || "Merci de bien vouloir vous connecter à votre espace client pour vérifier les documents demandés."}</p>
-        </div>
-        <p>Vous pouvez téléverser ces documents directement dans votre <strong>Espace Client</strong>.</p>
-        <p>Nous restons à votre entière disposition pour toute question.</p>
-        <br/>
-        <p>Cordialement,</p>
-        <p><strong>L'équipe FinancePro</strong></p>
-      </div>
-    `;
-
     // Mettre à jour les notes dans la BDD pour garder une trace
     await supabaseAdmin
       .from('loan_applications')
-      .update({ notes: notes })
+      .update({ notes })
       .eq('id', id);
 
-    const res = await sendEmail(email, subject, html);
+    const template = missingDocumentsTemplate({
+      firstName,
+      dossierNumber,
+      notes: notes || 'Merci de bien vouloir vous connecter à votre espace client pour vérifier les documents demandés.',
+    });
+
+    const res = await sendEmail(email, template.subject, template.html);
     if (!res.success) throw new Error("L'envoi de l'email a échoué.");
 
     return { success: true };
@@ -215,4 +178,3 @@ export async function requestMissingDocuments(id: string, email: string, firstNa
     return { success: false, error: 'Impossible d\'envoyer l\'email.' };
   }
 }
-

@@ -1,50 +1,80 @@
 import nodemailer from 'nodemailer';
+import type { Transporter } from 'nodemailer';
 
-export const sendEmail = async (to: string, subject: string, html: string) => {
+// ─── Singleton transporter ──────────────────────────────────────────────────
+let transporter: Transporter | null = null;
+
+function getTransporter(): Transporter {
+  if (transporter) return transporter;
+
+  const host = process.env.EMAIL_HOST || 'smtp.gmail.com';
+  const port = parseInt(process.env.EMAIL_PORT || '465', 10);
+
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_APP_PASSWORD) {
+    throw new Error('Missing EMAIL_USER or EMAIL_APP_PASSWORD environment variables');
+  }
+
+  transporter = nodemailer.createTransport({
+    host,
+    port,
+    secure: port === 465,
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_APP_PASSWORD,
+    },
+    tls: {
+      rejectUnauthorized: false,
+    },
+  });
+
+  return transporter;
+}
+
+// ─── Envoi d'email brut ─────────────────────────────────────────────────────
+export interface EmailResult {
+  success: boolean;
+  messageId?: string;
+  error?: string;
+}
+
+export async function sendEmail(
+  to: string,
+  subject: string,
+  html: string,
+  replyTo?: string,
+): Promise<EmailResult> {
   try {
-    console.log("SENDING EMAIL. User: ", process.env.EMAIL_USER ? "DEFINED" : "MISSING", " Password: ", process.env.EMAIL_APP_PASSWORD ? "DEFINED" : "MISSING");
-    
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_APP_PASSWORD) {
-      console.error("Missing EMAIL_USER or EMAIL_APP_PASSWORD environment variables!");
-      return { success: false, error: "Settings missing" };
-    }
+    const fromName = process.env.EMAIL_FROM_NAME || 'FinancePro';
+    const transport = getTransporter();
 
-    const transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com', 
-      port: 465,              
-      secure: true,           
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_APP_PASSWORD,
-      },
-      tls: {
-        rejectUnauthorized: false
-      }
+    const info = await transport.sendMail({
+      from: `"${fromName}" <${process.env.EMAIL_USER}>`,
+      to,
+      subject,
+      html,
+      ...(replyTo ? { replyTo } : {}),
     });
 
-    const info = await transporter.sendMail({
-      from: `"FinancePro" <${process.env.EMAIL_USER}>`, // sender address
-      to, // list of receivers
-      subject, // Subject line
-      html, // html body
-    });
-
+    console.log(`✅ Email envoyé à ${to} — MessageID: ${info.messageId}`);
     return { success: true, messageId: info.messageId };
   } catch (error: any) {
-    // LOGGING ROBUSTE exigé par production
     console.error('=========================================');
-    console.error('❌ ERREUR CRITIQUE D\'ENVOI SMTP :');
-    console.error('Nom erreur :', error.name);
-    console.error('Message erreur :', error.message);
-    if (error.response) {
-      console.error('Réponse SMTP :', error.response);
-    }
-    if (error.code) {
-      console.error('Code erreur SMTP :', error.code);
-    }
-    console.error('Pile (Stack) :', error.stack);
+    console.error('❌ ERREUR SMTP :');
+    console.error('Message :', error.message);
+    if (error.code) console.error('Code :', error.code);
+    if (error.response) console.error('Réponse SMTP :', error.response);
     console.error('=========================================');
-    
+
     return { success: false, error: error.message };
   }
-};
+}
+
+// ─── Envoi vers l'admin ─────────────────────────────────────────────────────
+export async function sendAdminEmail(
+  subject: string,
+  html: string,
+  replyTo?: string,
+): Promise<EmailResult> {
+  const adminEmail = process.env.EMAIL_ADMIN || process.env.EMAIL_USER!;
+  return sendEmail(adminEmail, subject, html, replyTo);
+}

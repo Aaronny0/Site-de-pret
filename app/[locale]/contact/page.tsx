@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Send, Phone, Mail, MapPin, Clock, ChevronDown } from "lucide-react";
+import { Send, Phone, Mail, MapPin, Clock, ChevronDown, Loader2 } from "lucide-react";
 import { useDictionary } from "@/components/DictionaryProvider";
 import { getLocalizedPath, type AppLocale } from "@/lib/routes";
+import { submitContactForm } from "@/app/contact/actions";
 
 export default function ContactPage() {
   const { dict, lang } = useDictionary();
@@ -20,6 +21,8 @@ export default function ContactPage() {
   ];
 
   const [sent, setSent] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [serverError, setServerError] = useState("");
   const [form, setForm] = useState({ subject: "", firstName: "", lastName: "", email: "", phone: "", message: "", consent: false });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -34,9 +37,30 @@ export default function ContactPage() {
     return Object.keys(e).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validate()) setSent(true);
+    if (!validate()) return;
+    setLoading(true);
+    setServerError("");
+    try {
+      const result = await submitContactForm({
+        firstName: form.firstName,
+        lastName: form.lastName,
+        email: form.email,
+        phone: form.phone || undefined,
+        subject: form.subject || undefined,
+        message: form.message,
+      });
+      if (result.success) {
+        setSent(true);
+      } else {
+        setServerError(result.error || "Une erreur est survenue.");
+      }
+    } catch {
+      setServerError("Erreur de connexion. Veuillez réessayer.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -135,9 +159,15 @@ export default function ContactPage() {
                     </label>
                     {errors.consent && <span className="form-error">{errors.consent}</span>}
 
-                    <button type="submit" className="btn btn-primary btn-lg" style={{ width: "100%", justifyContent: "center" }}>
-                      <Send size={18} />
-                      {t.submit_btn || "Enviar mi mensaje"}
+                    {serverError && (
+                      <div style={{ padding: "12px 16px", background: "rgba(220,38,38,0.1)", border: "1px solid rgba(220,38,38,0.3)", borderRadius: "var(--radius-md)", color: "#DC2626", fontSize: "0.875rem" }}>
+                        {serverError}
+                      </div>
+                    )}
+
+                    <button type="submit" className="btn btn-primary btn-lg" style={{ width: "100%", justifyContent: "center" }} disabled={loading}>
+                      {loading ? <Loader2 size={18} style={{ animation: "spin 1s linear infinite" }} /> : <Send size={18} />}
+                      {loading ? (t.sending || "Envío en curso...") : (t.submit_btn || "Enviar mi mensaje")}
                     </button>
                   </div>
                 </form>
